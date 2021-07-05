@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "screen.h": "c",
+        "mem.h": "c",
+        "string_view": "c",
+        "functional": "c",
+        "array": "c",
+        "string": "c",
+        "random": "c"
+    }
+}
