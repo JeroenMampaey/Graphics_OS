@@ -2,6 +2,7 @@
 #include "../kernel/kernel.h"
 #include "graphics_program.h"
 #include "../drivers/screen.h"
+#include "../drivers/networking.h"
 
 //declaring private functions
 void user_input(char* input);
@@ -105,6 +106,9 @@ void user_input(char* input){
             }
         }
         frequency_mode(60);
+    }
+    else if(strcmp(input, "FIND CARD")==0){
+        find_brute_force();
     }
     else{
 		printk(input);

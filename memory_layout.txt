@@ -2,8 +2,9 @@
 0x400 -> 0x500 BIOS Data Area
 0x500->0x600: Free
 0x600->0x800: Bootsector code
-0x800->0x1000: AP bootsector code
-0x1000->?: Kernel   (kernel is not ready yet)
+0x800->0x1000: Free
+0x1000->0x1200: AP bootsector code
+0x1200->?: Kernel   (kernel is not ready yet)
 ?->0x10000: Free
 0x10000->0x11000: font table
 0x11000->?: memory map (not big, normally around 196 bytes <-> 0xC4 bytes)
@@ -18,7 +19,3 @@
 0x200000->?: Stacks for different cores, each stack being 65536 bytes
 ?->?: Triangle buffers for all the different cores (except the BSP), each buffer being 0x20000 bytes big, these are placed 0x10000 bytes after the stacks
 ?->...: Free (some parts are still unavailable, see the displayed memory map when starting up the OS)
-
-NOTE: 
-    during boot before switching to protected mode, the stack of the BSP starts at 0xFFFF, thus be carefull when loading the 
-    disk before switching to protected mode
