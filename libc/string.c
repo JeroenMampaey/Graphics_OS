@@ -73,9 +73,31 @@ void backspace(char s[]) {
 }
 
 int strcmp(char s1[], char s2[]) {
-    int i;
-    for (i = 0; s1[i] == s2[i]; i++) {
+    int i = 0;
+    for (; s1[i] == s2[i]; i++) {
         if (s1[i] == '\0') return 0;
     }
     return s1[i] - s2[i];
+}
+
+int substr_cmp(char s1[], char s2[]){
+    int i = 0;
+    for(; s1[i] == s2[i]; i++){
+        if(s1[i] == '\0') return 0;
+    }
+    if(s2[i] == '\0') return 0;
+    else return s1[i] - s2[i];
+}
+
+int ascii_to_hex(char s){
+    if(s >= '0' && s <= '9'){
+        return s - '0';
+    }
+    else if(s >= 'A' && s <= 'F'){
+        return s - 'A' + 10;
+    }
+    else if(s >= 'a' && s <= 'f'){
+        return s - 'a' + 10;
+    }
+    else return -1;
 }

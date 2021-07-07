@@ -16,6 +16,6 @@
 0xA0000->0xC0000: Video Memory
 0xC0000->0x100000: BIOS
 0x100000->0x196000: z_buffer
-0x200000->?: Stacks for different cores, each stack being 65536 bytes
+0x200000->?: Stacks for different cores, each stack being 0x10000 bytes
 ?->?: Triangle buffers for all the different cores (except the BSP), each buffer being 0x20000 bytes big, these are placed 0x10000 bytes after the stacks
 ?->...: Free (some parts are still unavailable, see the displayed memory map when starting up the OS)

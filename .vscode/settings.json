@@ -6,6 +6,7 @@
         "functional": "c",
         "array": "c",
         "string": "c",
-        "random": "c"
+        "random": "c",
+        "networking.h": "c"
     }
 }

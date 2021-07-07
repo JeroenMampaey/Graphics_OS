@@ -3,6 +3,7 @@
 #include "../programs/kernel_program.h"
 #include "kernel.h"
 #include "../programs/graphics_program.h"
+#include "../drivers/networking.h"
 
 
 void setup_kernel();
@@ -90,6 +91,9 @@ void setup_kernel(){
 	
 	//setup a multicore system using APIC
 	setup_multicore();
+
+	//setup the e1000 network card
+	init_e1000();
 	
 	//start the kernel program
 	boot_to_kernel();
