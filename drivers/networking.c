@@ -138,8 +138,7 @@ void pci_write_dword(unsigned char bus, unsigned char slot, unsigned char func, 
 void rxinit(){
     unsigned char* ptr;
     e1000_rx_desc *descs;
-    // Allocate buffer for receive descriptors. For simplicity, in my case khmalloc returns a virtual address that is identical to it physical mapped address.
-    // In your case you should handle virtual and physical addresses as the addresses passed to the NIC should be physical ones
+    // Allocate buffer for receive descriptors.
     ptr = (unsigned char*)0x400000;
     descs = (e1000_rx_desc*)ptr;
     for(int i = 0; i < 32; i++)
@@ -187,6 +186,8 @@ void txinit(){
         | (15 << TCTL_CT_SHIFT)
         | (64 << TCTL_COLD_SHIFT)
         | TCTL_RTLC);
+    //comments from original author (https://wiki.osdev.org/Intel_Ethernet_i217):
+    //(I haven't tested yet whether this is necessary myself)
     // This line of code overrides the one before it but I left both to highlight that the previous one works with e1000 cards, but for the e1000e cards 
     // you should set the TCTRL register as follows. For detailed description of each bit, please refer to the Intel Manual.
     // In the case of I217 and 82577LM packets will not be sent if the TCTRL is not configured using the following bits.

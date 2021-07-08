@@ -3,6 +3,7 @@
 #include "graphics_program.h"
 #include "../drivers/screen.h"
 #include "../drivers/networking.h"
+#include "../drivers/network_stack.h"
 
 //declaring private functions
 void user_input(char* input);
@@ -138,6 +139,11 @@ void user_input(char* input){
         else{
             printk("MAC addres is not valid.");
         }
+    }
+    else if(strcmp(input, "DHCP")==0){
+        char* data = (char*)0x700000;
+        unsigned short length = DHCPDiscover(data);
+        sendPacket(data, length);
     }
     else{
 		printk(input);

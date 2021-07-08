@@ -7,6 +7,7 @@
         "array": "c",
         "string": "c",
         "random": "c",
-        "networking.h": "c"
+        "networking.h": "c",
+        "network_stack.h": "c"
     }
 }
