@@ -27,11 +27,11 @@ mov sp, bp
 
 call switch_graphics   ;setup VGA graphics mode
 
-call get_font  ;store a font table at 0x10000
+call get_font  ;store a font table at 0x90000
 
 call load_kernel  ;read the disk to load the kernel
 
-call do_e820  ;ask BIOS for a memory map and place it at addres 0x11000
+call do_e820  ;ask BIOS for a memory map and place it at addres 0x91000
 
 call enable_A20    ;make sure the A20 line is enabled
 

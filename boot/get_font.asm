@@ -1,12 +1,12 @@
 [bits 16]
-;reading font table from the VGA BIOS and storing it at 0x10000
+;reading font table from the VGA BIOS and storing it at 0x90000
 ;routine found at https://wiki.osdev.org/VGA_Fonts
 ;assumes registers ax, bx, cx are not yet used
 get_font:
     push es
     push di
-    ;font table will be stored at es:di <-> es*16+di <-> 0x10000
-    mov ax, 0x1000
+    ;font table will be stored at es:di <-> es*16+di <-> 0x90000
+    mov ax, 0x9000
     mov es, ax
     mov ax, 0x0000
     mov di, ax

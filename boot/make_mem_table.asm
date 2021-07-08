@@ -4,7 +4,7 @@
 
 do_e820:
 	push es
-    mov ax, 0x1000
+    mov ax, 0x9000
     mov es, ax
     mov ax, 0
     mov di, 0x1004        
@@ -45,8 +45,9 @@ do_e820:
 	test ebx, ebx		; if ebx resets to 0, list is complete
 	jne short .e820lp
 .e820f:
-	mov ax, 0x1000
+	mov ax, 0x9000
 	mov es, ax
+	mov ax, 0x1000
 	mov di, ax
 	mov [es:di], bp	; store the entry count
 	clc			; there is "jc" on end of list to this point, so the carry must be cleared

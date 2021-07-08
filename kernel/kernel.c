@@ -4,6 +4,7 @@
 #include "kernel.h"
 #include "../programs/graphics_program.h"
 #include "../drivers/networking.h"
+#include "../drivers/network_stack.h"
 
 
 void setup_kernel();
@@ -40,8 +41,7 @@ void setup_AP(){
 
 void setup_kernel(){
 	init_screen();
-	printk("Succesfully landed in the kernel in 32-bit protected mode.");
-
+	printk("Succesfully landed in the kernel in 32-bit protected mode.\n");
 	//check whether the A20 line is enabled
 	//https://wiki.osdev.org/A20_Line
 	int a20_on;
@@ -69,7 +69,6 @@ void setup_kernel(){
 		printk("The A20 line is off, OS won't start with a disabled A20 line.\n");
 		while(1);
 	}
-
 	//initialize all programs
 	loop_program[0] = kernel_loop_callback;
 	loop_program[1] = graphics_loop_callback;
@@ -83,10 +82,9 @@ void setup_kernel(){
 	ipi_install();
 	isr_install();
 	irq_install();
-	
+
 	//enable hardware interrupts
 	__asm__ __volatile__("sti");
-
 	printk("Succesfully setup interrupts.\n");
 	
 	//setup a multicore system using APIC
@@ -94,7 +92,10 @@ void setup_kernel(){
 
 	//setup the e1000 network card
 	init_e1000();
-	
+
+	//setup networking
+	init_stack();
+
 	//start the kernel program
 	boot_to_kernel();
 
@@ -106,7 +107,7 @@ void setup_kernel(){
 }
 
 void showMemLayout(){
-	unsigned char* addr = (unsigned char*)0x11000;
+	unsigned char* addr = (unsigned char*)MEMORY_MAP;
 	printk("\nBIOS memory layout:\n");
 	int mul = 1;
 	int total = 0;

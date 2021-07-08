@@ -1,4 +1,5 @@
 #include "networking.h"
+#include "network_stack.h"
 /*
     Driver to use the Intel PRO/1000 MT Desktop (82540EM)
     Based on:
@@ -10,7 +11,6 @@
 //private functions 
 void writeCommand(unsigned short address, unsigned int value);
 unsigned int readCommand(unsigned short address);
-void handleReceive();
 void NIC_handler(registers_t regs);
 unsigned int readEEPROM(unsigned int addr);
 int readMACAddress();
@@ -31,41 +31,29 @@ unsigned int readCommand(unsigned short address){
     return *((volatile unsigned int*)(address+base));
 }
 
-//code to handle a packet
-void handleReceive(){
-    unsigned short old_cur;
-    while((rx_descs[rx_cur]->status & 0x1))
-    {
-            char* addr = (char*)rx_descs[rx_cur]->addr_low;
-            unsigned int length = rx_descs[rx_cur]->length;
-            if(length>19 && *(addr+12) == 'C' && *(addr+13) == 'O' && *(addr+14)=='N' && *(addr+15)=='N' && *(addr+16)=='E' && *(addr+17)=='C' && *(addr+18)=='T'){
-                printk("\nReceived an ethernet connect message!\n");
-            }
-            rx_descs[rx_cur]->status = 0;
-            old_cur = rx_cur;
-            rx_cur = (rx_cur + 1) % 32;
-            writeCommand(0x2818, old_cur);
-    }
-}
-
 //interrupt handler code when a packet is received
 void NIC_handler(registers_t regs){
     writeCommand(0x00D0, 0x1);
 
     unsigned int status = readCommand(0xc0);
-    if(status & 0x04)
-    {
+    if(status & 0x04){
         unsigned int val;
         val = readCommand(0x0000);
         writeCommand(0x0000, val | 0x40);
     }
-    else if(status & 0x10)
-    {
+    else if(status & 0x10){
         printk("good threshold.\n");
     }
-    else if(status & 0x80)
-    {
-        handleReceive();
+    else if(status & 0x80){
+        unsigned short old_cur;
+        while((rx_descs[rx_cur]->status & 0x1))
+        {
+                handleReceive((char*)rx_descs[rx_cur]->addr_low, rx_descs[rx_cur]->length);
+                rx_descs[rx_cur]->status = 0;
+                old_cur = rx_cur;
+                rx_cur = (rx_cur + 1) % 32;
+                writeCommand(0x2818, old_cur);
+        }
     }
 }
 

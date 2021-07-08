@@ -5,9 +5,7 @@
 #include "../libc/mem.h"
 #include "../libc/string.h"
 #define VIDEO_MEMORY 0xA0000
-#define FONT_TABLE 0x10000
-#define HALF_THETA_HORIZONTALLY 2.0472  //PI/3
-#define HALF_THETA_VERTICALLY 0.7854  //PI/4
+#define FONT_TABLE 0x90000
 #define DIST_TO_SCREEN 240  //480/2
 
 //these instruction can certainly be optimized but it isn't that important, maybe later

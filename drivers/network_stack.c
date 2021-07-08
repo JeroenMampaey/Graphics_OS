@@ -1,5 +1,43 @@
 #include "network_stack.h"
 
+//start up networking
+void init_stack(){
+    my_IP = 0;
+}
+
+void handleReceive(char* data, unsigned short length){
+    //small test program which i keep here temporarily
+    if(length>19 && *(data+12) == 'C' && *(data+13) == 'O' && *(data+14)=='N' && *(data+15)=='N' && *(data+16)=='E' && *(data+17)=='C' && *(data+18)=='T'){
+        printk("\nReceived an ethernet connect message!\n");
+        return;
+    }
+
+    char source_mac[6];
+    char destination_mac[6];
+    unsigned int source_IP;
+    unsigned int destination_IP;
+    for(int i=0; i<6; i++){
+        destination_mac[i] = *(data+i);
+        source_mac[i] = *(data+6+i);
+    }
+    if((unsigned char)(*(data+12)) != 0x08 || (unsigned char)(*(data+13)) != 0x00) return;  //only protocol that i consider at the moment is IPv4
+    source_IP = ((unsigned int)(unsigned char)(*(data+26)) << 24) + ((unsigned int)(unsigned char)(*(data+27)) << 16) + ((unsigned int)(unsigned char)(*(data+28)) << 8) + (unsigned int)(unsigned char)(*(data+29));
+    destination_IP = ((unsigned int)(unsigned char)(*(data+30)) << 24) + ((unsigned int)(unsigned char)(*(data+31)) << 16) + ((unsigned int)(unsigned char)(*(data+32)) << 8) + (unsigned int)(unsigned char)(*(data+33));
+    int destination_type = 0b11;  //0<->not meant for this computer, 0b01<->broadcast, 0b10<->explicitly for this computer
+    for(int i=0; i<6 && destination_type!=0; i++){
+        if(destination_mac[i] != mac[i]) destination_type &= 0b01;
+        if((unsigned char)destination_mac[i] != 0xFF) destination_type &= 0b10;
+    }
+    if(destination_IP!=my_IP) destination_type &= 0b01;
+    if(destination_IP!=0xFFFFFFFF) destination_type &= 0b10;
+    if(destination_type==0) return;
+    unsigned short source_port = ((unsigned short)(unsigned char)(*(data+34)) << 8) +  (unsigned short)(unsigned char)(*(data+35));
+    unsigned short destination_port = ((unsigned short)(unsigned char)(*(data+36)) << 8) +  (unsigned short)(unsigned char)(*(data+37));
+    if(destination_port==68 && source_port==67){
+        printk("\nDHCP message has been answered.\n");
+    }
+}
+
 void addEthernetHeader(char* data, char* destination_MAC, unsigned short protocol_number){
     for(int i=0; i<6; i++){
         *(data+i) = *(destination_MAC+i);

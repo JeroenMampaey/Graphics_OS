@@ -1,21 +1,15 @@
 0x0 -> 0x400: Interrupt Vector Table
 0x400 -> 0x500 BIOS Data Area
-0x500->0x600: Free
 0x600->0x800: Bootsector code
-0x800->0x1000: Free
 0x1000->0x1200: AP bootsector code
 0x1200->?: Kernel   (kernel is not ready yet)
-?->0x10000: Free
-0x10000->0x11000: font table
-0x11000->?: memory map (not big, normally around 196 bytes <-> 0xC4 bytes)
-?->0x20000: Free
 0x20000->0x45800: video buffers
 0x45800->0x48800: triangle buffers
-0x48800->0x9fc00: Free
+0x90000->0x91000: font table
+0x91000->?: memory map (not big, normally around 196 bytes <-> 0xC4 bytes)
 0x9fc00->0xA0000: Extended BIOS Data Area
 0xA0000->0xC0000: Video Memory
 0xC0000->0x100000: BIOS
 0x100000->0x196000: z_buffer
 0x200000->?: Stacks for different cores, each stack being 0x10000 bytes
 ?->?: Triangle buffers for all the different cores (except the BSP), each buffer being 0x20000 bytes big, these are placed 0x10000 bytes after the stacks
-?->...: Free (some parts are still unavailable, see the displayed memory map when starting up the OS)
