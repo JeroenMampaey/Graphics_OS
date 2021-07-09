@@ -140,10 +140,55 @@ void user_input(char* input){
             printk("MAC addres is not valid.");
         }
     }
-    else if(strcmp(input, "DHCP")==0){
-        char* data = (char*)0x700000;
-        unsigned short length = DHCPDiscover(data);
-        sendPacket(data, length);
+    else if(strcmp(input, "GET IP")==0){
+        if(my_IP==0) DHCPDiscover();
+        else printk("\nComputer already has an IP address.\n");
+    }
+    else if(strcmp(input, "NETWORK INFO")==0){
+        printk("\nMAC-adress: ");
+        char to_print[18];
+        for(int i=0; i<6; i++){
+            int mac1 = (int)(unsigned char)mac[i] >> 4;
+            int mac2 = (int)(unsigned char)mac[i] & 0xF;
+            to_print[i*3] = (mac1 > 9) ? 'A'+mac1-10 : '0'+mac1;
+            to_print[i*3+1] = (mac2 > 9) ? 'A'+mac2-10 : '0'+mac2;
+            to_print[i*3+2] = '-';
+        }
+        to_print[17] = '\0';
+        printk(to_print);
+        printk("\n");
+        printk("IP-address: ");
+        if(my_IP==0) printk("IP address hasn't been obtained yet.\n");
+        else{
+            int_to_ascii((int)(my_IP >> 24), to_print);
+            printk(to_print);
+            printk(".");
+            int_to_ascii((int)((my_IP >> 16) & 0xFF), to_print);
+            printk(to_print);
+            printk(".");
+            int_to_ascii((int)((my_IP >> 8) & 0xFF), to_print);
+            printk(to_print);
+            printk(".");
+            int_to_ascii((int)(my_IP & 0xFF), to_print);
+            printk(to_print);
+            printk("\n");
+        }
+        printk("Router IP-address: ");
+        if(router_IP==0) printk("IP address hasn't been obtained yet.\n");
+        else{
+            int_to_ascii((int)(router_IP >> 24), to_print);
+            printk(to_print);
+            printk(".");
+            int_to_ascii((int)((router_IP >> 16) & 0xFF), to_print);
+            printk(to_print);
+            printk(".");
+            int_to_ascii((int)((router_IP >> 8) & 0xFF), to_print);
+            printk(to_print);
+            printk(".");
+            int_to_ascii((int)(router_IP & 0xFF), to_print);
+            printk(to_print);
+            printk("\n");
+        }
     }
     else{
 		printk(input);

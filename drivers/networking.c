@@ -81,22 +81,22 @@ int readMACAddress(){
     mac[4] = tmp & 0xFF;
     mac[5] = tmp >> 8;
     char to_print[10];
-    int_to_ascii((int)mac[0], to_print);
+    int_to_ascii((int)(unsigned char)mac[0], to_print);
     printk(to_print);
     printk("-");
-    int_to_ascii((int)mac[1], to_print);
+    int_to_ascii((int)(unsigned char)mac[1], to_print);
     printk(to_print);
     printk("-");
-    int_to_ascii((int)mac[2], to_print);
+    int_to_ascii((int)(unsigned char)mac[2], to_print);
     printk(to_print);
     printk("-");
-    int_to_ascii((int)mac[3], to_print);
+    int_to_ascii((int)(unsigned char)mac[3], to_print);
     printk(to_print);
     printk("-");
-    int_to_ascii((int)mac[4], to_print);
+    int_to_ascii((int)(unsigned char)mac[4], to_print);
     printk(to_print);
     printk("-");
-    int_to_ascii((int)mac[5], to_print);
+    int_to_ascii((int)(unsigned char)mac[5], to_print);
     printk(to_print);
     printk("\n");
 }
@@ -127,12 +127,12 @@ void rxinit(){
     unsigned char* ptr;
     e1000_rx_desc *descs;
     // Allocate buffer for receive descriptors.
-    ptr = (unsigned char*)0x400000;
+    ptr = (unsigned char*)RECEIVE_BUFFER;
     descs = (e1000_rx_desc*)ptr;
     for(int i = 0; i < 32; i++)
     {
         rx_descs[i] = descs+i;
-        rx_descs[i]->addr_low = 0x400000+0x1000+0x3000*i;
+        rx_descs[i]->addr_low = RECEIVE_BUFFER+0x1000+0x3000*i;
         rx_descs[i]->addr_high = 0;
         rx_descs[i]->status = 0;
     }
@@ -149,9 +149,8 @@ void rxinit(){
 void txinit(){    
     unsigned char*  ptr;
     e1000_tx_desc *descs;
-    // Allocate buffer for receive descriptors. For simplicity, in my case khmalloc returns a virtual address that is identical to it physical mapped address.
-    // In your case you should handle virtual and physical addresses as the addresses passed to the NIC should be physical ones
-    ptr = (unsigned char*)0x500000;
+    // Allocate buffer for receive descriptors
+    ptr = (unsigned char*)TRANSMISSION_BUFFER;
     descs = (e1000_tx_desc *)ptr;
     for(int i = 0; i < 8; i++)
     {

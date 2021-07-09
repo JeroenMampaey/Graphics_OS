@@ -5,6 +5,9 @@
 #include "screen.h"
 #include "../cpu/isr.h"
 
+#define RECEIVE_BUFFER 0x400000
+#define TRANSMISSION_BUFFER 0x500000
+
 #define RCTL_EN                         (1 << 1)    // Receiver Enable
 #define RCTL_SBP                        (1 << 2)    // Store Bad Packets
 #define RCTL_UPE                        (1 << 3)    // Unicast Promiscuous Enabled

@@ -26,26 +26,6 @@ void int_to_ascii(int n, char str[]) {
     reverse(str);
 }
 
-void hex_to_ascii(int n, char str[]) {  //wtf is this???
-    append(str, '0');
-    append(str, 'x');
-    char zeros = 0;
-
-    int tmp;
-    int i;
-    for (i = 28; i > 0; i -= 4) {
-        tmp = (n >> i) & 0xF;
-        if (tmp == 0 && zeros == 0) continue;
-        zeros = 1;
-        if (tmp > 0xA) append(str, tmp - 0xA + 'a');
-        else append(str, tmp + '0');
-    }
-
-    tmp = n & 0xF;
-    if (tmp >= 0xA) append(str, tmp - 0xA + 'a');
-    else append(str, tmp + '0');
-}
-
 void reverse(char s[]) {
     int c, i, j;
     for (i = 0, j = strlen(s)-1; i < j; i++, j--) {
