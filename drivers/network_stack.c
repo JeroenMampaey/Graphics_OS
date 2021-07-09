@@ -33,44 +33,56 @@ void handleReceive(char* data, unsigned short length){
         destination_mac[i] = *(data+i);
         source_mac[i] = *(data+6+i);
     }
-    if((unsigned char)(*(data+12)) != 0x08 || (unsigned char)(*(data+13)) != 0x00) return;  //only protocol that i consider at the moment is IPv4
-    source_IP = ((unsigned int)(unsigned char)(*(data+26)) << 24) + ((unsigned int)(unsigned char)(*(data+27)) << 16) + ((unsigned int)(unsigned char)(*(data+28)) << 8) + (unsigned int)(unsigned char)(*(data+29));
-    destination_IP = ((unsigned int)(unsigned char)(*(data+30)) << 24) + ((unsigned int)(unsigned char)(*(data+31)) << 16) + ((unsigned int)(unsigned char)(*(data+32)) << 8) + (unsigned int)(unsigned char)(*(data+33));
-    int destination_type = 0b11;  //0<->not meant for this computer, 0b01<->broadcast, 0b10<->explicitly for this computer
-    for(int i=0; i<6 && destination_type!=0; i++){
-        if(destination_mac[i] != mac[i]) destination_type &= 0b01;
-        if((unsigned char)destination_mac[i] != 0xFF) destination_type &= 0b10;
-    }
-    if(destination_IP!=my_IP) destination_type &= 0b01;
-    if(destination_IP!=0xFFFFFFFF) destination_type &= 0b10;
-    if(destination_type==0) return;
-    unsigned short source_port = ((unsigned short)(unsigned char)(*(data+34)) << 8) +  (unsigned short)(unsigned char)(*(data+35));
-    unsigned short destination_port = ((unsigned short)(unsigned char)(*(data+36)) << 8) +  (unsigned short)(unsigned char)(*(data+37));
-    if(destination_port==68 && source_port==67){
-        int index = DHCP_option(data, 0x35);
-        if((unsigned char)(*(data+index+1)) == 0x02 && DHCP_step==1){
-            printk("\nDHCP offer has been received.\n");
-            index = DHCP_option(data, 0x03);
-            if(index != -1){
-                router_IP = ((unsigned int)(unsigned char)(*(data+index+1)) << 24) + ((unsigned int)(unsigned char)(*(data+index+2)) << 16) + ((unsigned int)(unsigned char)(*(data+index+3)) << 8) + (unsigned int)(unsigned char)(*(data+index+4));
-                printk("Router IP has been found.\n");
-            }
-            index = DHCP_option(data, 0x36);
-            if(index != -1){
-                DHCP_IP = ((unsigned int)(unsigned char)(*(data+index+1)) << 24) + ((unsigned int)(unsigned char)(*(data+index+2)) << 16) + ((unsigned int)(unsigned char)(*(data+index+3)) << 8) + (unsigned int)(unsigned char)(*(data+index+4));
-                printk("DHCP server IP has been found.\n");
-            }
-            proposed_IP = ((unsigned int)(unsigned char)(*(data+58)) << 24) + ((unsigned int)(unsigned char)(*(data+59)) << 16) + ((unsigned int)(unsigned char)(*(data+60)) << 8) + (unsigned int)(unsigned char)(*(data+61)); 
-            DHCPRequest();
+    if((unsigned char)(*(data+12)) == 0x08 && (unsigned char)(*(data+13)) == 0x06 && (unsigned char)(*(data+16))==0x08 && (unsigned char)(*(data+17))==0x00){   //ARP for IPv4
+        if((unsigned char)(*(data+20))==0x00 && (unsigned char)(*(data+21))==0x01){
+            unsigned int requested_IP = ((unsigned int)(unsigned char)(*(data+38)) << 24) + ((unsigned int)(unsigned char)(*(data+39)) << 16) + ((unsigned int)(unsigned char)(*(data+40)) << 8) + (unsigned int)(unsigned char)(*(data+41));
+            if(requested_IP != my_IP) return;
+            char sender_MAC[6];
+            for(int i=0; i<6; i++) sender_MAC[i] = *(data+22+i);
+            unsigned int sender_IP = ((unsigned int)(unsigned char)(*(data+28)) << 24) + ((unsigned int)(unsigned char)(*(data+29)) << 16) + ((unsigned int)(unsigned char)(*(data+30)) << 8) + (unsigned int)(unsigned char)(*(data+31));
+            ARPReply(sender_MAC, sender_IP);
         }
-        else if((unsigned char)(*(data+index+1)) == 0x05 && DHCP_step==2){
-            printk("DHCP acknowledgement has been received.\n");
-            my_IP = ((unsigned int)(unsigned char)(*(data+58)) << 24) + ((unsigned int)(unsigned char)(*(data+59)) << 16) + ((unsigned int)(unsigned char)(*(data+60)) << 8) + (unsigned int)(unsigned char)(*(data+61));
-            if(my_IP == proposed_IP){
-                printk("This computer now has an IP-address.\n");
-                DHCP_step = 0;
+    }
+    else if((unsigned char)(*(data+12)) == 0x08 && (unsigned char)(*(data+13)) == 0x00){   //IPv4
+        source_IP = ((unsigned int)(unsigned char)(*(data+26)) << 24) + ((unsigned int)(unsigned char)(*(data+27)) << 16) + ((unsigned int)(unsigned char)(*(data+28)) << 8) + (unsigned int)(unsigned char)(*(data+29));
+        destination_IP = ((unsigned int)(unsigned char)(*(data+30)) << 24) + ((unsigned int)(unsigned char)(*(data+31)) << 16) + ((unsigned int)(unsigned char)(*(data+32)) << 8) + (unsigned int)(unsigned char)(*(data+33));
+        //0<->not meant for this computer, 0b01<->broadcast, 0b10<->explicitly for this computer
+        int destination_type = 0b11;
+        for(int i=0; i<6 && destination_type!=0; i++){
+            if(destination_mac[i] != mac[i]) destination_type &= 0b01;
+            if((unsigned char)destination_mac[i] != 0xFF) destination_type &= 0b10;
+        }
+        if(destination_IP!=my_IP) destination_type &= 0b01;
+        if(destination_IP!=0xFFFFFFFF) destination_type &= 0b10;
+        if(destination_type==0) return;
+        unsigned short source_port = ((unsigned short)(unsigned char)(*(data+34)) << 8) +  (unsigned short)(unsigned char)(*(data+35));
+        unsigned short destination_port = ((unsigned short)(unsigned char)(*(data+36)) << 8) +  (unsigned short)(unsigned char)(*(data+37));
+        if(destination_port==68 && source_port==67){
+            int index = DHCP_option(data, 0x35);
+            if((unsigned char)(*(data+index+1)) == 0x02 && DHCP_step==1){
+                printk("\nDHCP offer has been received.\n");
+                index = DHCP_option(data, 0x03);
+                if(index != -1){
+                    router_IP = ((unsigned int)(unsigned char)(*(data+index+1)) << 24) + ((unsigned int)(unsigned char)(*(data+index+2)) << 16) + ((unsigned int)(unsigned char)(*(data+index+3)) << 8) + (unsigned int)(unsigned char)(*(data+index+4));
+                    printk("Router IP has been found.\n");
+                }
+                index = DHCP_option(data, 0x36);
+                if(index != -1){
+                    DHCP_IP = ((unsigned int)(unsigned char)(*(data+index+1)) << 24) + ((unsigned int)(unsigned char)(*(data+index+2)) << 16) + ((unsigned int)(unsigned char)(*(data+index+3)) << 8) + (unsigned int)(unsigned char)(*(data+index+4));
+                    printk("DHCP server IP has been found.\n");
+                }
+                proposed_IP = ((unsigned int)(unsigned char)(*(data+58)) << 24) + ((unsigned int)(unsigned char)(*(data+59)) << 16) + ((unsigned int)(unsigned char)(*(data+60)) << 8) + (unsigned int)(unsigned char)(*(data+61)); 
+                DHCPRequest();
             }
-            else my_IP = 0;
+            else if((unsigned char)(*(data+index+1)) == 0x05 && DHCP_step==2){
+                printk("DHCP acknowledgement has been received.\n");
+                my_IP = ((unsigned int)(unsigned char)(*(data+58)) << 24) + ((unsigned int)(unsigned char)(*(data+59)) << 16) + ((unsigned int)(unsigned char)(*(data+60)) << 8) + (unsigned int)(unsigned char)(*(data+61));
+                if(my_IP == proposed_IP){
+                    printk("This computer now has an IP-address.\n");
+                    DHCP_step = 0;
+                }
+                else my_IP = 0;
+            }
         }
     }
 }
@@ -273,4 +285,36 @@ int DHCP_option(char* data, unsigned char option){
         }
     }
     return -1; //option not found
+}
+
+
+//https://nl.wikipedia.org/wiki/Address_resolution_protocol
+void ARPReply(char* sender_MAC, unsigned int sender_IP){
+    char* data = (char*)(PACKET_DATA_BUFFER+current);
+    unsigned short length = 28;
+    addEthernetHeader(data, sender_MAC, 0x0806);
+    length += 14;
+    data += 14;
+    *data = 0x00;
+    *(data+1) = 0x01;
+    *(data+2) = 0x08;
+    *(data+3) = 0x00;
+    *(data+4) = 0x06;
+    *(data+5) = 0x04;
+    *(data+6) = 0x00;
+    *(data+7) = 0x02;
+    for(int i=0; i<6; i++) *(data+8+i) = mac[i];
+    *(data+14) = (unsigned char)((my_IP >> 24) & 0xFF);
+    *(data+15) = (unsigned char)((my_IP >> 16) & 0xFF);
+    *(data+16) = (unsigned char)((my_IP >> 8) & 0xFF);
+    *(data+17) = (unsigned char)(my_IP & 0xFF);
+    for(int i=0; i<6; i++) *(data+18+i) = *(sender_MAC+i);
+    *(data+24) = (unsigned char)((sender_IP >> 24) & 0xFF);
+    *(data+25) = (unsigned char)((sender_IP >> 16) & 0xFF);
+    *(data+26) = (unsigned char)((sender_IP >> 8) & 0xFF);
+    *(data+27) = (unsigned char)(sender_IP & 0xFF);
+    current += length;
+    current = (current > PACKET_DATA_BUFFER+0x100000) ? PACKET_DATA_BUFFER : current;
+    data -= 14;
+    sendPacket(data, length);
 }

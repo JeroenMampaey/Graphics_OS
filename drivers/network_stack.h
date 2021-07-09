@@ -28,6 +28,8 @@ void DHCPDiscover();
 
 void DHCPRequest();
 
+void ARPReply(char* sender_MAC, unsigned int sender_IP);
+
 void handleReceive(char* data, unsigned short length);
 
 #endif
