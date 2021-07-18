@@ -2,6 +2,13 @@
 
 //private functions
 int DHCP_option(char* data, unsigned char option);
+void addEthernetHeader(char* data, char* destination_MAC, unsigned short protocol_number);
+void addNetworkHeader(char* data, unsigned int source_IP, unsigned int destination_IP, unsigned char protocol, unsigned short length, unsigned short identification);
+void addUDPHeader(char* data, unsigned short source_port, unsigned short destination_port, unsigned short length);
+void addICMPHeader(char* data, unsigned short data_length, unsigned char type, unsigned short identifier, unsigned short sequence_number);
+void DHCPRequest();
+void ARPReply(char* destination_MAC, char* sender_MAC, unsigned int sender_IP);
+void ICMPReply(char* destination_MAC, unsigned int destination_IP, unsigned short identifier, unsigned short sequence_number, char* request_data, unsigned short data_length);
 
 //start up networking
 void init_stack(){
@@ -18,13 +25,10 @@ void init_stack(){
     https://en.wikipedia.org/wiki/IPv4#Header
     https://en.wikipedia.org/wiki/User_Datagram_Protocol
     https://en.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol
+    https://nl.wikipedia.org/wiki/Address_resolution_protocol
+    http://www.networksorcery.com/enp/protocol/icmp/msg8.htm
 */
 void handleReceive(char* data, unsigned short length){
-    //small test program which i keep here temporarily
-    if(length>19 && *(data+12) == 'C' && *(data+13) == 'O' && *(data+14)=='N' && *(data+15)=='N' && *(data+16)=='E' && *(data+17)=='C' && *(data+18)=='T'){
-        printk("\nReceived an ethernet connect message!\n");
-        return;
-    }
     char source_mac[6];
     char destination_mac[6];
     unsigned int source_IP;
@@ -40,13 +44,13 @@ void handleReceive(char* data, unsigned short length){
             char sender_MAC[6];
             for(int i=0; i<6; i++) sender_MAC[i] = *(data+22+i);
             unsigned int sender_IP = ((unsigned int)(unsigned char)(*(data+28)) << 24) + ((unsigned int)(unsigned char)(*(data+29)) << 16) + ((unsigned int)(unsigned char)(*(data+30)) << 8) + (unsigned int)(unsigned char)(*(data+31));
-            ARPReply(sender_MAC, sender_IP);
+            ARPReply(source_mac, sender_MAC, sender_IP);
         }
     }
     else if((unsigned char)(*(data+12)) == 0x08 && (unsigned char)(*(data+13)) == 0x00){   //IPv4
         source_IP = ((unsigned int)(unsigned char)(*(data+26)) << 24) + ((unsigned int)(unsigned char)(*(data+27)) << 16) + ((unsigned int)(unsigned char)(*(data+28)) << 8) + (unsigned int)(unsigned char)(*(data+29));
         destination_IP = ((unsigned int)(unsigned char)(*(data+30)) << 24) + ((unsigned int)(unsigned char)(*(data+31)) << 16) + ((unsigned int)(unsigned char)(*(data+32)) << 8) + (unsigned int)(unsigned char)(*(data+33));
-        //0<->not meant for this computer, 0b01<->broadcast, 0b10<->explicitly for this computer
+        //0b00<->not meant for this computer, 0b01<->broadcast, 0b10<->explicitly for this computer
         int destination_type = 0b11;
         for(int i=0; i<6 && destination_type!=0; i++){
             if(destination_mac[i] != mac[i]) destination_type &= 0b01;
@@ -55,33 +59,42 @@ void handleReceive(char* data, unsigned short length){
         if(destination_IP!=my_IP) destination_type &= 0b01;
         if(destination_IP!=0xFFFFFFFF) destination_type &= 0b10;
         if(destination_type==0) return;
-        unsigned short source_port = ((unsigned short)(unsigned char)(*(data+34)) << 8) +  (unsigned short)(unsigned char)(*(data+35));
-        unsigned short destination_port = ((unsigned short)(unsigned char)(*(data+36)) << 8) +  (unsigned short)(unsigned char)(*(data+37));
-        if(destination_port==68 && source_port==67){
-            int index = DHCP_option(data, 0x35);
-            if((unsigned char)(*(data+index+1)) == 0x02 && DHCP_step==1){
-                printk("\nDHCP offer has been received.\n");
-                index = DHCP_option(data, 0x03);
-                if(index != -1){
-                    router_IP = ((unsigned int)(unsigned char)(*(data+index+1)) << 24) + ((unsigned int)(unsigned char)(*(data+index+2)) << 16) + ((unsigned int)(unsigned char)(*(data+index+3)) << 8) + (unsigned int)(unsigned char)(*(data+index+4));
-                    printk("Router IP has been found.\n");
+        if(*(data+23) == 0x11){   //UDP
+            unsigned short source_port = ((unsigned short)(unsigned char)(*(data+34)) << 8) +  (unsigned short)(unsigned char)(*(data+35));
+            unsigned short destination_port = ((unsigned short)(unsigned char)(*(data+36)) << 8) +  (unsigned short)(unsigned char)(*(data+37));
+            if(destination_port==68 && source_port==67){
+                int index = DHCP_option(data, 0x35);
+                if((unsigned char)(*(data+index+1)) == 0x02 && DHCP_step==1){
+                    printk("\nDHCP offer has been received.\n");
+                    index = DHCP_option(data, 0x03);
+                    if(index != -1){
+                        router_IP = ((unsigned int)(unsigned char)(*(data+index+1)) << 24) + ((unsigned int)(unsigned char)(*(data+index+2)) << 16) + ((unsigned int)(unsigned char)(*(data+index+3)) << 8) + (unsigned int)(unsigned char)(*(data+index+4));
+                        printk("Router IP has been found.\n");
+                    }
+                    index = DHCP_option(data, 0x36);
+                    if(index != -1){
+                        DHCP_IP = ((unsigned int)(unsigned char)(*(data+index+1)) << 24) + ((unsigned int)(unsigned char)(*(data+index+2)) << 16) + ((unsigned int)(unsigned char)(*(data+index+3)) << 8) + (unsigned int)(unsigned char)(*(data+index+4));
+                        printk("DHCP server IP has been found.\n");
+                    }
+                    proposed_IP = ((unsigned int)(unsigned char)(*(data+58)) << 24) + ((unsigned int)(unsigned char)(*(data+59)) << 16) + ((unsigned int)(unsigned char)(*(data+60)) << 8) + (unsigned int)(unsigned char)(*(data+61)); 
+                    DHCPRequest();
                 }
-                index = DHCP_option(data, 0x36);
-                if(index != -1){
-                    DHCP_IP = ((unsigned int)(unsigned char)(*(data+index+1)) << 24) + ((unsigned int)(unsigned char)(*(data+index+2)) << 16) + ((unsigned int)(unsigned char)(*(data+index+3)) << 8) + (unsigned int)(unsigned char)(*(data+index+4));
-                    printk("DHCP server IP has been found.\n");
+                else if((unsigned char)(*(data+index+1)) == 0x05 && DHCP_step==2){
+                    printk("DHCP acknowledgement has been received.\n");
+                    my_IP = ((unsigned int)(unsigned char)(*(data+58)) << 24) + ((unsigned int)(unsigned char)(*(data+59)) << 16) + ((unsigned int)(unsigned char)(*(data+60)) << 8) + (unsigned int)(unsigned char)(*(data+61));
+                    if(my_IP == proposed_IP){
+                        printk("This computer now has an IP-address.\n");
+                        DHCP_step = 0;
+                    }
+                    else my_IP = 0;
                 }
-                proposed_IP = ((unsigned int)(unsigned char)(*(data+58)) << 24) + ((unsigned int)(unsigned char)(*(data+59)) << 16) + ((unsigned int)(unsigned char)(*(data+60)) << 8) + (unsigned int)(unsigned char)(*(data+61)); 
-                DHCPRequest();
-            }
-            else if((unsigned char)(*(data+index+1)) == 0x05 && DHCP_step==2){
-                printk("DHCP acknowledgement has been received.\n");
-                my_IP = ((unsigned int)(unsigned char)(*(data+58)) << 24) + ((unsigned int)(unsigned char)(*(data+59)) << 16) + ((unsigned int)(unsigned char)(*(data+60)) << 8) + (unsigned int)(unsigned char)(*(data+61));
-                if(my_IP == proposed_IP){
-                    printk("This computer now has an IP-address.\n");
-                    DHCP_step = 0;
-                }
-                else my_IP = 0;
+            }   
+        }
+        else if(*(data+23) == 0x01){     //ICMP
+            if(*(data+34) == 0x08){      //echo request
+                unsigned short identifier = ((unsigned short)(*(data+38)) << 8) + (unsigned short)(*(data+39));
+                unsigned short sequence_number = ((unsigned short)(*(data+40)) << 8) + (unsigned short)(*(data+41));
+                ICMPReply(source_mac, source_IP, identifier, sequence_number, data+42, length-42);
             }
         }
     }
@@ -129,7 +142,7 @@ void addNetworkHeader(char* data, unsigned int source_IP, unsigned int destinati
         }
     }
 
-    //since i assume a 20 byte header, this is overkill
+    //since i assume a 20 byte header, this is not necessary
     while((total_sum & 0xFFFF) != total_sum) total_sum = (total_sum & 0xFFFF) + (total_sum >> 16); 
     unsigned short checksum = total_sum;
     checksum = ~checksum;
@@ -148,6 +161,33 @@ void addUDPHeader(char* data, unsigned short source_port, unsigned short destina
     *(data+5) = (unsigned char)((length+8) & 0xFF);
     *(data+6) = 0;  //field is optional apparently in IPv4
     *(data+7) = 0;
+}
+
+//http://www.networksorcery.com/enp/protocol/icmp/msg0.htm
+//http://www.networksorcery.com/enp/protocol/icmp/msg8.htm
+void addICMPHeader(char* data, unsigned short data_length, unsigned char type, unsigned short identifier, unsigned short sequence_number){
+    data += 34;
+    *data = type;
+    *(data+1) = 0;
+    *(data+4) = (unsigned char)((identifier >> 8) & 0xFF);
+    *(data+5) = (unsigned char)(identifier & 0xFF);
+    *(data+6) = (unsigned char)((sequence_number >> 8) & 0xFF);
+    *(data+7) = (unsigned char)(sequence_number & 0xFF);
+
+    unsigned int total_sum = 0;
+    for(int i=0; i < (8+data_length)/2; i++){
+        if(i!=1){
+            unsigned short data1 = (unsigned short)(unsigned char)(*(data+2*i));
+            unsigned short data2 = (unsigned short)(unsigned char)(*(data+2*i+1));
+            total_sum += (data1 << 8) + data2;
+        }
+    }
+
+    while((total_sum & 0xFFFF) != total_sum) total_sum = (total_sum & 0xFFFF) + (total_sum >> 16); 
+    unsigned short checksum = total_sum;
+    checksum = ~checksum;
+    *(data+2) = (unsigned char)((checksum >> 8) & 0xFF);
+    *(data+3) = (unsigned char)(checksum & 0xFF);
 }
 
 //https://en.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol
@@ -289,10 +329,10 @@ int DHCP_option(char* data, unsigned char option){
 
 
 //https://nl.wikipedia.org/wiki/Address_resolution_protocol
-void ARPReply(char* sender_MAC, unsigned int sender_IP){
+void ARPReply(char* destination_MAC, char* sender_MAC, unsigned int sender_IP){
     char* data = (char*)(PACKET_DATA_BUFFER+current);
     unsigned short length = 28;
-    addEthernetHeader(data, sender_MAC, 0x0806);
+    addEthernetHeader(data, destination_MAC, 0x0806);
     length += 14;
     data += 14;
     *data = 0x00;
@@ -316,5 +356,21 @@ void ARPReply(char* sender_MAC, unsigned int sender_IP){
     current += length;
     current = (current > PACKET_DATA_BUFFER+0x100000) ? PACKET_DATA_BUFFER : current;
     data -= 14;
+    sendPacket(data, length);
+}
+
+//http://www.networksorcery.com/enp/protocol/icmp/msg0.htm
+void ICMPReply(char* destination_MAC, unsigned int destination_IP, unsigned short identifier, unsigned short sequence_number, char* request_data, unsigned short data_length){
+    char* data = (char*)(PACKET_DATA_BUFFER+current);
+    unsigned short length = data_length;    
+    for(int i=0; i < data_length; i++) *(data+42+i) = *(request_data+i);
+    addICMPHeader(data, data_length, 0, identifier, sequence_number);
+    length += 8;
+    addNetworkHeader(data, my_IP, destination_IP, 0x01, length, 0);
+    length += 20;
+    addEthernetHeader(data, destination_MAC, 0x0800);
+    length += 14;
+    current += length;
+    current = (current > PACKET_DATA_BUFFER+0x100000) ? PACKET_DATA_BUFFER : current;
     sendPacket(data, length);
 }

@@ -13,3 +13,6 @@
 0x100000->0x196000: z_buffer
 0x200000->?: Stacks for different cores, each stack being 0x10000 bytes
 ?->?: Triangle buffers for all the different cores (except the BSP), each buffer being 0x20000 bytes big, these are placed 0x10000 bytes after the stacks
+0x400000->0x461000: data buffer for received messages through the network
+0x500000->?: data buffer for transmission messages through the network
+0x700000->?: data buffer used for making transmission messages (should approximately be contained between 0x700000 and 0x800000 but will leak a bit above 0x800000)

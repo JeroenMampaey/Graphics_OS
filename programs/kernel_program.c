@@ -108,38 +108,6 @@ void user_input(char* input){
         }
         frequency_mode(60);
     }
-    else if(substr_cmp(input, "CONNECT ")==0 && strlen(input)==20){
-        int correct = 1;
-        for(int i=8; i<20; i++){
-            if((*(input+i) < '0') || (*(input+i) > '9' && *(input+i) < 'A') || (*(input+i) > 'F')) correct = 0;
-        }
-        if(correct == 1){
-            char* data = (char*)0x700000;
-            *data = ascii_to_hex(*(input+8))*16+ascii_to_hex(*(input+9));
-            *(data+1) = ascii_to_hex(*(input+10))*16+ascii_to_hex(*(input+11));
-            *(data+2) = ascii_to_hex(*(input+12))*16+ascii_to_hex(*(input+13));
-            *(data+3) = ascii_to_hex(*(input+14))*16+ascii_to_hex(*(input+15));
-            *(data+4) = ascii_to_hex(*(input+16))*16+ascii_to_hex(*(input+17));
-            *(data+5) = ascii_to_hex(*(input+18))*16+ascii_to_hex(*(input+19));
-            *(data+6) = mac[0];
-            *(data+7) = mac[1];
-            *(data+8) = mac[2];
-            *(data+9) = mac[3];
-            *(data+10) = mac[4];
-            *(data+11) = mac[5];
-            *(data+12) = 'C';
-            *(data+13) = 'O';
-            *(data+14) = 'N';
-            *(data+15) = 'N';
-            *(data+16) = 'E';
-            *(data+17) = 'C';
-            *(data+18) = 'T';
-            sendPacket(data, 19);
-        }
-        else{
-            printk("MAC addres is not valid.");
-        }
-    }
     else if(strcmp(input, "GET IP")==0){
         if(my_IP==0) DHCPDiscover();
         else printk("\nComputer already has an IP address.\n");

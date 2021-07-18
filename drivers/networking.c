@@ -126,7 +126,7 @@ void pci_write_dword(unsigned char bus, unsigned char slot, unsigned char func, 
 void rxinit(){
     unsigned char* ptr;
     e1000_rx_desc *descs;
-    // Allocate buffer for receive descriptors.
+    // Allocate buffer for descriptors.
     ptr = (unsigned char*)RECEIVE_BUFFER;
     descs = (e1000_rx_desc*)ptr;
     for(int i = 0; i < 32; i++)
@@ -149,7 +149,7 @@ void rxinit(){
 void txinit(){    
     unsigned char*  ptr;
     e1000_tx_desc *descs;
-    // Allocate buffer for receive descriptors
+    // Allocate buffer for descriptors
     ptr = (unsigned char*)TRANSMISSION_BUFFER;
     descs = (e1000_tx_desc *)ptr;
     for(int i = 0; i < 8; i++)
