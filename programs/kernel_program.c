@@ -4,6 +4,8 @@
 #include "../drivers/screen.h"
 #include "../drivers/networking.h"
 #include "../drivers/network_stack.h"
+#include "../drivers/disk_reader.h"
+#include "../programs/editor_program.h"
 
 //declaring private functions
 void user_input(char* input);
@@ -64,6 +66,11 @@ void user_input(char* input){
         show_screen();
         return;
 	}
+    else if(strcmp(input, "WRITE")==0){
+        kernel_to_editor();
+        current_program = 2;
+        return;
+    }
     else if(strcmp(input, "VENDOR ID")==0){
         //https://wiki.osdev.org/CPUID
         //answer should be "GenuineIntel" cause this is the processor that i assume is being used

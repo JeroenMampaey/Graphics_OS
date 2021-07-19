@@ -7,7 +7,6 @@ int valid_color(unsigned char color);
 int valid_plane(unsigned char plane);
 int valid_planar_coord_3D(int x, int y);
 int valid_coord(int x, int y);
-void scroll_up();
 void project_and_normal(triangle_3d_mem* triangle_addr, triangle_3d *new_tr, float_vector_3d *normal_vec);
 void view_and_project(float_vector_3d* point, int_vector_3d* projected);
 void displayTriangle3D(triangle_3d* tr, float_vector_3d* normal_vec, unsigned char color);
@@ -371,6 +370,16 @@ void print_string_at(char string[], char* buffer_addr){
 	
 }
 
+void print_char_at(char to_print, int offset){
+	char* font_addr = (char*)(FONT_TABLE + ((int)to_print << 4));
+	char* mem_addr = (char*)(VIDEO_MEMORY + offset);
+	for(int j=0; j<16; j++){
+		*mem_addr = *font_addr;
+		mem_addr += 80;
+		font_addr += 1;
+	}
+}
+
 void print_int_at(int to_print, char* buffer_addr){
 	char int_str[20];
 	int_to_ascii(to_print, int_str);
@@ -388,6 +397,32 @@ void printk_backspace(){
 	}
 }
 
+void put_on_screen(char* addr, int offset){
+	int current_position = offset;
+	char* font_addr;
+	char* mem_addr;
+	char to_print = *addr;
+	while(to_print!='\0' && current_position < 480*80){
+		if(to_print == '\n'){
+			current_position += (80 - (current_position % 80));
+			current_position += 15*80;    //a character is 16 pixels high
+		}
+		else{
+			font_addr = (char*)(FONT_TABLE + ((int)to_print << 4));  //every character takes in 16 bytes
+			mem_addr = (char*)VIDEO_MEMORY + current_position;
+			for(int j=0; j<16; j++){
+				*mem_addr = *font_addr;
+				mem_addr += 80;
+				font_addr += 1;
+			}
+			current_position++;
+			if((current_position % 80)==0) current_position += 15*80;     //a character is 16 pixels high
+		}
+		addr++;
+		to_print = *addr;
+	}
+}
+
 void scroll_up(){
 	//since we assume only kernel text to be present on the screen and gray<->0111 it suffices to read plane 0
 	set_read_color(0);
@@ -398,6 +433,18 @@ void scroll_up(){
 	move_dwords_asm((int)(VIDEO_MEMORY+0x500), (int)VIDEO_MEMORY, (int)(464*80/4));
 	//clear last line
 	clear_dwords_asm((int)(VIDEO_MEMORY+0x9100), (int)(16*80/4));
+}
+
+void scroll_down(){
+	//since we assume only kernel text to be present on the screen and gray<->0111 it suffices to read plane 0
+	set_read_color(0);
+	set_write_color(0b00000111);
+
+	//use assembly functions since using C appeared to be to inefficiënt
+	//move everything up
+	move_dwords_reverse_asm((int)(VIDEO_MEMORY+0x90FC), (int)(VIDEO_MEMORY+0x95FC), (int)(464*80/4));
+	//clear first line
+	clear_dwords_asm((int)VIDEO_MEMORY, (int)(16*80/4));
 }
 
 void clear_screen(){

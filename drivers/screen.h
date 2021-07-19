@@ -98,8 +98,6 @@ static int current_char;
 
 matrix_4d view_matrix;
 
-
-
 int buffer_addr[4];
 
 int triangle_buffer_addr;
@@ -112,6 +110,7 @@ int AP_buffer_begin;
 void init_screen();
 
 extern void move_dwords_asm(int from, int to, int number_of_dwords);
+extern void move_dwords_reverse_asm(int from, int to, int number_of_dwords);
 extern void fill_bytes_asm(int addres, int number_of_bytes);
 extern void fill_dwords_asm(int addres, int number_of_dwords);
 extern void clear_dwords_asm(int addres, int number_of_dwords);
@@ -128,7 +127,15 @@ void printk(char string[]);
 
 void printk_backspace();
 
+void put_on_screen(char* addr, int offset);
+
+void print_char_at(char to_print, int offset);
+
 void clear_screen();
+
+void scroll_up();
+
+void scroll_down();
 
 void initialize_buffers();
 

@@ -5,6 +5,7 @@
 #include "../programs/graphics_program.h"
 #include "../drivers/networking.h"
 #include "../drivers/network_stack.h"
+#include "../programs/editor_program.h"
 
 
 void setup_kernel();
@@ -72,10 +73,13 @@ void setup_kernel(){
 	//initialize all programs
 	loop_program[0] = kernel_loop_callback;
 	loop_program[1] = graphics_loop_callback;
+	loop_program[2] = editor_loop_callback;
 	keyboard_program[0] = kernel_keyboard_callback;
 	keyboard_program[1] = graphics_keyboard_callback;
+	keyboard_program[2] = editor_keyboard_callback;
 	timer_program[0] = kernel_timer_callback;
-	timer_program[1] = graphics_timer_callback;	
+	timer_program[1] = graphics_timer_callback;
+	timer_program[2] = editor_timer_callback;
 	current_program = 0;
 
 	//setup interrupts

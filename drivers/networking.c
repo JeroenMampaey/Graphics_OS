@@ -42,7 +42,7 @@ void NIC_handler(registers_t regs){
         writeCommand(0x0000, val | 0x40);
     }
     else if(status & 0x10){
-        printk("good threshold.\n");
+        //printk("good threshold.\n");
     }
     else if(status & 0x80){
         unsigned short old_cur;

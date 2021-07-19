@@ -3,6 +3,8 @@
 
 #include "../cpu/ports.h"
 
-void read_disk(int LBA, unsigned char num_of_sectors, short* destination);
+void read_disk(unsigned int LBA, unsigned char num_of_sectors, short* destination);
+
+void write_disk(unsigned int LBA, unsigned char num_of_sectors, short* data);
 
 #endif
