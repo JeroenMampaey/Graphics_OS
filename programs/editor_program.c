@@ -164,17 +164,76 @@ void editor_keyboard_callback(unsigned char scancode){
         *to_change = '\n';
         to_change++;
         print_char_at(' ', current_mem_position);
-        current_mem_position += (80 - (current_mem_position % 80));
-        current_mem_position += 15*80;
         current_mem_addr++;
         move_buffer(to_change, prev_char);
-        if(current_mem_position == 480*80){
+        if(current_mem_position+16*80 >= 480*80){
+            current_mem_position++;
+            while((current_mem_position % 80)!=0){
+                print_char_at(' ', current_mem_position);
+                current_mem_position++;
+            }
             scroll_up();
-            current_mem_position -= 16*80;
+            current_mem_position -= 80;
             put_on_screen(to_change, current_mem_position);
         }
         else if(prev_char != '\0'){
-            //TODO
+            int offset = current_mem_position+1;
+            char* to_change_original = to_change-2;
+            int counter_original = 0;
+            int counter_new = 0;
+            int line_counter_original = 0;
+            int line_counter_new = 1;
+            int line_counter_new_under = 1;
+            current_mem_position += (80 - (current_mem_position % 80));
+            current_mem_position += 15*80;
+            while((offset % 80)!=0){
+                print_char_at(' ', offset);
+                offset++;
+            }
+            offset += 15*80;
+            while(*to_change_original!='\n' && (int)to_change_original>=BUFFER_BEGIN){
+                counter_original++;
+                if((counter_original % 80) == 0){
+                    line_counter_original++;
+                    line_counter_new++;
+                }
+                to_change_original--;
+            }
+            to_change_original = to_change;
+            while(*to_change_original!='\n' && *to_change_original!='\0'){
+                counter_original++;
+                counter_new++;
+                if((counter_original % 80)==0) line_counter_original++;
+                if((counter_new % 80)==0){
+                    line_counter_new++;
+                    line_counter_new_under++;
+                }
+                to_change_original++;
+            }
+            if(line_counter_new==line_counter_original){
+                clear_dwords_asm((int)VIDEO_MEMORY+offset, (int)(16*80*line_counter_new_under/4));
+                while(*to_change!='\n' && *to_change!='\0'){
+                    print_char_at(*to_change, offset);
+                    to_change++;
+                    offset++;
+                    offset = ((offset % 80) == 0) ? offset+15*80 : offset;
+                }
+            }
+            else{
+                set_read_color(0);
+                if(offset!=480*80-16*80) move_dwords_reverse_asm((int)(VIDEO_MEMORY+0x90FC), (int)(VIDEO_MEMORY+0x95FC), (int)((464*80-offset)/4));
+                clear_dwords_asm((int)VIDEO_MEMORY+offset, (int)(16*80*line_counter_new_under/4));
+                while(*to_change!='\n' && *to_change!='\0'){
+                    print_char_at(*to_change, offset);
+                    to_change++;
+                    offset++;
+                    offset = ((offset % 80) == 0) ? offset+15*80 : offset;
+                }
+            }
+        }
+        else{
+            current_mem_position += (80 - (current_mem_position % 80));
+            current_mem_position += 15*80;
         }
         print_char_at('<', current_mem_position);
     }

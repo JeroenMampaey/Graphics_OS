@@ -51,7 +51,7 @@ jmp $
 
 load_kernel:
     mov bx, DISK_LOAD_OFFSET
-    mov dh, 100
+    mov dh, 120
     mov dl, [BOOT_DRIVE]
     call disk_load   ;read the disk
     
