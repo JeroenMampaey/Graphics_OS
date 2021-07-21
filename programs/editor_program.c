@@ -26,6 +26,9 @@ void editor_loop_callback(){
 }
 
 //TODO: cleanup
+//since this appeared to be more complex than I thought (especially without using any brute force tricks)
+//I instead brute forced a solution by splitting the problem in different parts and just solving every part
+//this code does however need to be cleaned and simplified (alot of identical code at multiple places)
 void editor_keyboard_callback(unsigned char scancode){
     if(scancode == (unsigned char)75){   //leftkey
         if(current_mem_addr == 0) return;
@@ -49,6 +52,9 @@ void editor_keyboard_callback(unsigned char scancode){
             else{
                 current_mem_position = 79;
                 scroll_down();
+                for(int i=0; i<80;i++){
+                    print_char_at(*(cursor_char-i), current_mem_position-i);
+                }
             }
         }
         else if((current_mem_position % 80) == 0){
@@ -155,7 +161,365 @@ void editor_keyboard_callback(unsigned char scancode){
             }
         }
         else{
-            //TODO
+            if(current_mem_position==0){
+                if(prev_char == '\n'){
+                    int counter_original = 0;
+                    int counter_new = 0;
+                    int line_counter_original = 1;
+                    int line_counter_new = 0;
+                    int line_counter_new_under = 1;
+                    char* to_change_original = to_change-1;
+                    while(*to_change_original!='\n' && (int)to_change_original>=BUFFER_BEGIN){
+                        counter_new++;
+                        if((counter_new % 80) == 0){
+                            line_counter_original++;
+                            line_counter_new++;
+                        }
+                        to_change_original--;
+                    }
+                    to_change_original = to_change;
+                    current_mem_position = counter_new % 80;
+                    while(*to_change_original!='\n' && *to_change_original!='\0'){
+                        counter_original++;
+                        counter_new++;
+                        if((counter_original % 80)==0) line_counter_original++;
+                        if((counter_new % 80)==0){
+                            line_counter_new++;
+                            line_counter_new_under++;
+                        }
+                        to_change_original++;
+                    }
+                    if(line_counter_new==line_counter_original){
+                        scroll_down();
+                        if(line_counter_new_under>30) line_counter_new_under=30;
+                        clear_dwords_asm((int)VIDEO_MEMORY, (int)(16*80*line_counter_new_under/4));
+                        for(int i=0; i<current_mem_position; i++){
+                            print_char_at(*(to_change-current_mem_position+i), i);
+                        }
+                        int offset = current_mem_position;
+                        while(*to_change!='\n' && *to_change!='\0'){
+                            print_char_at(*to_change, offset);
+                            offset++;
+                            offset = ((offset % 80) == 0) ? offset+15*80 : offset;
+                            to_change++;
+                        }
+                    }
+                    else{
+                        if(line_counter_new_under>30) line_counter_new_under=30;
+                        clear_dwords_asm((int)VIDEO_MEMORY, (int)(16*80*line_counter_new_under/4));
+                        for(int i=0; i<current_mem_position; i++){
+                            print_char_at(*(to_change-current_mem_position+i), i);
+                        }
+                        int offset = current_mem_position;
+                        while(*to_change!='\n' && *to_change!='\0'){
+                            print_char_at(*to_change, offset);
+                            offset++;
+                            offset = ((offset % 80) == 0) ? offset+15*80 : offset;
+                            to_change++;
+                        }
+                    }
+                    print_char_at('<', current_mem_position);
+                }
+                else{
+                    int counter_original = 0;
+                    int counter_new = 0;
+                    int line_counter_original = 0;
+                    int line_counter_new = 0;
+                    int line_counter_new_under = 1;
+                    char* to_change_original = to_change-1;
+                    while(*to_change_original!='\n' && (int)to_change_original>=BUFFER_BEGIN){
+                        counter_original++;
+                        counter_new++;
+                        if((counter_new % 80) == 0){
+                            line_counter_original++;
+                            line_counter_new++;
+                        }
+                        to_change_original--;
+                    }
+                    to_change_original = to_change;
+                    current_mem_position = counter_new % 80;
+                    counter_original++;
+                    if((counter_original % 80)==0) line_counter_original++;
+                    while(*to_change_original!='\n' && *to_change_original!='\0'){
+                        counter_original++;
+                        counter_new++;
+                        if((counter_original % 80)==0) line_counter_original++;
+                        if((counter_new % 80)==0){
+                            line_counter_new++;
+                            line_counter_new_under++;
+                        }
+                        to_change_original++;
+                    }
+                    if(line_counter_new==line_counter_original){
+                        scroll_down();
+                        if(line_counter_new_under>30) line_counter_new_under=30;
+                        clear_dwords_asm((int)VIDEO_MEMORY, (int)(16*80*line_counter_new_under/4));
+                        for(int i=0; i<current_mem_position; i++){
+                            print_char_at(*(to_change-current_mem_position+i), i);
+                        }
+                        int offset = current_mem_position;
+                        while(*to_change!='\n' && *to_change!='\0'){
+                            print_char_at(*to_change, offset);
+                            offset++;
+                            offset = ((offset % 80) == 0) ? offset+15*80 : offset;
+                            to_change++;
+                        }
+                    }
+                    else{
+                        if(line_counter_new_under>30) line_counter_new_under=30;
+                        clear_dwords_asm((int)VIDEO_MEMORY, (int)(16*80*line_counter_new_under/4));
+                        for(int i=0; i<current_mem_position; i++){
+                            print_char_at(*(to_change-current_mem_position+i), i);
+                        }
+                        int offset = current_mem_position;
+                        while(*to_change!='\n' && *to_change!='\0'){
+                            print_char_at(*to_change, offset);
+                            offset++;
+                            offset = ((offset % 80) == 0) ? offset+15*80 : offset;
+                            to_change++;
+                        }
+                    }
+                    print_char_at('<', current_mem_position);
+                }
+            }
+            else if((current_mem_position % 80) == 0){
+                if(prev_char == '\n'){
+                    int counter_original = 0;
+                    int counter_new = 0;
+                    int line_counter_original = 1;
+                    int line_counter_new = 0;
+                    int line_counter_new_under = 1;
+                    char* to_change_original = to_change-1;
+                    while(*to_change_original!='\n' && (int)to_change_original>=BUFFER_BEGIN){
+                        counter_new++;
+                        if((counter_new % 80) == 0){
+                            line_counter_original++;
+                            line_counter_new++;
+                        }
+                        to_change_original--;
+                    }
+                    current_mem_position -= 16*80;
+                    int offset = current_mem_position;
+                    current_mem_position = current_mem_position + (counter_new % 80); 
+                    to_change_original = to_change;
+                    while(*to_change_original!='\n' && *to_change_original!='\0'){
+                        counter_original++;
+                        counter_new++;
+                        if((counter_original % 80)==0) line_counter_original++;
+                        if((counter_new % 80)==0){
+                            line_counter_new++;
+                            line_counter_new_under++;
+                        }
+                        to_change_original++;
+                    }
+                    if(line_counter_new==line_counter_original){
+                        if(line_counter_new_under>30) line_counter_new_under=30;
+                        clear_dwords_asm((int)VIDEO_MEMORY+offset, (int)(16*80*line_counter_new_under/4));
+                        for(int i=0; i<(current_mem_position % 80); i++){
+                            print_char_at(*(to_change-1-i), current_mem_position-1-i);
+                        }
+                        offset = current_mem_position;
+                        while(*to_change!='\n' && *to_change!='\0'){
+                            print_char_at(*to_change, offset);
+                            offset++;
+                            offset = ((offset % 80) == 0) ? offset+15*80 : offset;
+                            to_change++;
+                        }
+                    }
+                    else{
+                        if(line_counter_new_under>30) line_counter_new_under=30;
+                        set_read_color(0);
+                        if(offset!=480*80-16*80) move_dwords_asm((int)(VIDEO_MEMORY+offset+16*80), (int)(VIDEO_MEMORY+offset), (int)((464*80-offset)/4));
+                        clear_dwords_asm((int)VIDEO_MEMORY+offset, (int)(16*80*line_counter_new_under/4));
+                        for(int i=0; i<(current_mem_position % 80); i++){
+                            print_char_at(*(to_change-1-i), current_mem_position-1-i);
+                        }
+                        offset = current_mem_position;
+                        while(*to_change!='\n' && *to_change!='\0'){
+                            print_char_at(*to_change, offset);
+                            offset++;
+                            offset = ((offset % 80) == 0) ? offset+15*80 : offset;
+                            to_change++;
+                        }
+                        if(*to_change=='\n'){
+                            while(offset!=464*80 && *to_change!='\0'){
+                                if(*to_change=='\n'){
+                                    offset += (80 - (offset % 80));
+                                    offset += 15*80;
+                                }
+                                else{
+                                    offset++;
+                                    offset = ((offset % 80)==0) ? offset+15*80 : offset;
+                                }
+                                to_change++;
+                            }
+                            for(int i=0; i<80 && *to_change!='\0'; i++, offset++, to_change++){
+                                print_char_at(*to_change, offset);
+                            }
+                        }
+                    }
+                    print_char_at('<', current_mem_position);
+                }
+                else{
+                    int counter_original = 0;
+                    int counter_new = 0;
+                    int line_counter_original = 0;
+                    int line_counter_new = 0;
+                    int line_counter_new_under = 1;
+                    char* to_change_original = to_change-1;
+                    while(*to_change_original!='\n' && (int)to_change_original>=BUFFER_BEGIN){
+                        counter_original++;
+                        counter_new++;
+                        if((counter_new % 80) == 0){
+                            line_counter_original++;
+                            line_counter_new++;
+                        }
+                        to_change_original--;
+                    }
+                    to_change_original = to_change;
+                    counter_original++;
+                    if((counter_original % 80)==0) line_counter_original++;
+                    while(*to_change_original!='\n' && *to_change_original!='\0'){
+                        counter_original++;
+                        counter_new++;
+                        if((counter_original % 80)==0) line_counter_original++;
+                        if((counter_new % 80)==0){
+                            line_counter_new++;
+                            line_counter_new_under++;
+                        }
+                        to_change_original++;
+                    }
+                    int offset = current_mem_position-16*80;
+                    current_mem_position--;
+                    current_mem_position -= 15*80;
+                    if(line_counter_new==line_counter_original){
+                        if(line_counter_new_under>30) line_counter_new_under=30;
+                        clear_dwords_asm((int)VIDEO_MEMORY+offset, (int)(16*80*line_counter_new_under/4));
+                        for(int i=0; i<(current_mem_position % 80); i++){
+                            print_char_at(*(to_change-1-i), current_mem_position-1-i);
+                        }
+                        offset = current_mem_position;
+                        while(*to_change!='\n' && *to_change!='\0'){
+                            print_char_at(*to_change, offset);
+                            offset++;
+                            offset = ((offset % 80) == 0) ? offset+15*80 : offset;
+                            to_change++;
+                        }
+                    }
+                    else{
+                        if(line_counter_new_under>30) line_counter_new_under=30;
+                        set_read_color(0);
+                        if(offset!=480*80-16*80) move_dwords_asm((int)(VIDEO_MEMORY+offset+16*80), (int)(VIDEO_MEMORY+offset), (int)((464*80-offset)/4));
+                        clear_dwords_asm((int)VIDEO_MEMORY+offset, (int)(16*80*line_counter_new_under/4));
+                        for(int i=0; i<(current_mem_position % 80); i++){
+                            print_char_at(*(to_change-1-i), current_mem_position-1-i);
+                        }
+                        offset = current_mem_position;
+                        while(*to_change!='\n' && *to_change!='\0'){
+                            print_char_at(*to_change, offset);
+                            offset++;
+                            offset = ((offset % 80) == 0) ? offset+15*80 : offset;
+                            to_change++;
+                        }
+                        if(*to_change=='\n'){
+                            while(offset!=464*80 && *to_change!='\0'){
+                                if(*to_change=='\n'){
+                                    offset += (80 - (offset % 80));
+                                    offset += 15*80;
+                                }
+                                else{
+                                    offset++;
+                                    offset = ((offset % 80)==0) ? offset+15*80 : offset;
+                                }
+                                to_change++;
+                            }
+                            for(int i=0; i<80 && *to_change!='\0'; i++, offset++, to_change++){
+                                print_char_at(*to_change, offset);
+                            }
+                        }
+                    }
+                    print_char_at('<', current_mem_position);
+                }
+            }
+            else{
+                int counter_original = 0;
+                int counter_new = 0;
+                int line_counter_original = 0;
+                int line_counter_new = 0;
+                int line_counter_new_under = 1;
+                char* to_change_original = to_change-1;
+                while(*to_change_original!='\n' && (int)to_change_original>=BUFFER_BEGIN){
+                    counter_original++;
+                    counter_new++;
+                    if((counter_new % 80) == 0){
+                        line_counter_original++;
+                        line_counter_new++;
+                    }
+                    to_change_original--;
+                }
+                int offset = current_mem_position - (current_mem_position % 80);
+                current_mem_position--;
+                to_change_original = to_change;
+                counter_original++;
+                if((counter_original % 80)==0) line_counter_original++;
+                while(*to_change_original!='\n' && *to_change_original!='\0'){
+                    counter_original++;
+                    counter_new++;
+                    if((counter_original % 80)==0) line_counter_original++;
+                    if((counter_new % 80)==0){
+                        line_counter_new++;
+                        line_counter_new_under++;
+                    }
+                    to_change_original++;
+                }
+                if(line_counter_new==line_counter_original){
+                    if(line_counter_new_under>30) line_counter_new_under=30;
+                    clear_dwords_asm((int)VIDEO_MEMORY+offset, (int)(16*80*line_counter_new_under/4));
+                    for(int i=0; i<(current_mem_position % 80); i++){
+                        print_char_at(*(to_change-1-i), current_mem_position-1-i);
+                    }
+                    offset = current_mem_position;
+                    while(*to_change!='\n' && *to_change!='\0'){
+                        print_char_at(*to_change, offset);
+                        offset++;
+                        offset = ((offset % 80) == 0) ? offset+15*80 : offset;
+                        to_change++;
+                    }
+                }
+                else{
+                    if(line_counter_new_under>30) line_counter_new_under=30;
+                    set_read_color(0);
+                    if(offset!=480*80-16*80) move_dwords_asm((int)(VIDEO_MEMORY+offset+16*80), (int)(VIDEO_MEMORY+offset), (int)((464*80-offset)/4));
+                    clear_dwords_asm((int)VIDEO_MEMORY+offset, (int)(16*80*line_counter_new_under/4));
+                    for(int i=0; i<(current_mem_position % 80); i++){
+                        print_char_at(*(to_change-1-i), current_mem_position-1-i);
+                    }
+                    offset = current_mem_position;
+                    while(*to_change!='\n' && *to_change!='\0'){
+                        print_char_at(*to_change, offset);
+                        offset++;
+                        offset = ((offset % 80) == 0) ? offset+15*80 : offset;
+                        to_change++;
+                    }
+                    if(*to_change=='\n'){
+                        while(offset!=464*80 && *to_change!='\0'){
+                            if(*to_change=='\n'){
+                                offset += (80 - (offset % 80));
+                                offset += 15*80;
+                            }
+                            else{
+                                offset++;
+                                offset = ((offset % 80)==0) ? offset+15*80 : offset;
+                            }
+                            to_change++;
+                        }
+                        for(int i=0; i<80 && *to_change!='\0'; i++, offset++, to_change++){
+                            print_char_at(*to_change, offset);
+                        }
+                    }
+                }
+                print_char_at('<', current_mem_position);
+            }
         }
     }
     else if(scancode == ENTER){
@@ -211,6 +575,7 @@ void editor_keyboard_callback(unsigned char scancode){
                 to_change_original++;
             }
             if(line_counter_new==line_counter_original){
+                if(line_counter_new_under>30) line_counter_new_under=30;
                 clear_dwords_asm((int)VIDEO_MEMORY+offset, (int)(16*80*line_counter_new_under/4));
                 while(*to_change!='\n' && *to_change!='\0'){
                     print_char_at(*to_change, offset);
@@ -222,6 +587,7 @@ void editor_keyboard_callback(unsigned char scancode){
             else{
                 set_read_color(0);
                 if(offset!=480*80-16*80) move_dwords_reverse_asm((int)(VIDEO_MEMORY+0x90FC), (int)(VIDEO_MEMORY+0x95FC), (int)((464*80-offset)/4));
+                if(line_counter_new_under>30) line_counter_new_under=30;
                 clear_dwords_asm((int)VIDEO_MEMORY+offset, (int)(16*80*line_counter_new_under/4));
                 while(*to_change!='\n' && *to_change!='\0'){
                     print_char_at(*to_change, offset);
