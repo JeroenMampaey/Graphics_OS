@@ -353,9 +353,13 @@ void editor_keyboard_callback(unsigned char scancode){
                                 }
                                 to_change++;
                             }
-                            for(int i=0; i<80 && *to_change!='\0'; i++, offset++, to_change++){
+                            clear_dwords_asm((int)VIDEO_MEMORY+480*80-16*80, (int)(16*80/4));
+                            for(int i=0; i<80 && *to_change!='\0' && *to_change!='\n'; i++, offset++, to_change++){
                                 print_char_at(*to_change, offset);
                             }
+                        }
+                        else if(current_mem_position >= 480*80-16*2*80){
+                            clear_dwords_asm((int)VIDEO_MEMORY+480*80-16*80, (int)(16*80/4));
                         }
                     }
                     print_char_at('<', current_mem_position);
@@ -433,9 +437,13 @@ void editor_keyboard_callback(unsigned char scancode){
                                 }
                                 to_change++;
                             }
-                            for(int i=0; i<80 && *to_change!='\0'; i++, offset++, to_change++){
+                            clear_dwords_asm((int)VIDEO_MEMORY+480*80-16*80, (int)(16*80/4));
+                            for(int i=0; i<80 && *to_change!='\0' && *to_change!='\n'; i++, offset++, to_change++){
                                 print_char_at(*to_change, offset);
                             }
+                        }
+                        else if(current_mem_position >= 480*80-16*2*80){
+                            clear_dwords_asm((int)VIDEO_MEMORY+480*80-16*80, (int)(16*80/4));
                         }
                     }
                     print_char_at('<', current_mem_position);
@@ -513,9 +521,13 @@ void editor_keyboard_callback(unsigned char scancode){
                             }
                             to_change++;
                         }
-                        for(int i=0; i<80 && *to_change!='\0'; i++, offset++, to_change++){
+                        clear_dwords_asm((int)VIDEO_MEMORY+480*80-16*80, (int)(16*80/4));
+                        for(int i=0; i<80 && *to_change!='\0' && *to_change!='\n'; i++, offset++, to_change++){
                             print_char_at(*to_change, offset);
                         }
+                    }
+                    else if(current_mem_position >= 480*80-16*2*80){
+                        clear_dwords_asm((int)VIDEO_MEMORY+480*80-16*80, (int)(16*80/4));
                     }
                 }
                 print_char_at('<', current_mem_position);
