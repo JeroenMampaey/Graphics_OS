@@ -16,6 +16,10 @@ static char command_ready;
 
 void boot_to_kernel();
 
+void editor_to_kernel();
+
+void graphics_to_kernel();
+
 void kernel_loop_callback();
 
 void kernel_keyboard_callback(unsigned char scancode);

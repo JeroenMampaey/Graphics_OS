@@ -16,3 +16,5 @@
 0x400000->0x461000: data buffer for received messages through the network
 0x500000->?: data buffer for transmission messages through the network
 0x700000->?: data buffer used for making transmission messages (should approximately be contained between 0x700000 and 0x800000 but will leak a bit above 0x800000)
+0x1000000->0x100x28CD0: buffer for the editor program, this text is also used to generate triangles for the graphics program
+0x2000000->0x2000200: temporary memory used during startup (becomes free immediately after use but I mention it here anyway)

@@ -6,10 +6,10 @@
 #include "../kernel/kernel.h"
 #include "../cpu/timer.h"
 
-//niet volledig correct maar een beetje aangepast richting een azerty-keyboard
+//kinda like azerty but not really
 const char sc_ascii[] = { '?', '?', '1', '2', '3', '4', '5', '6',     
-    '7', '8', '9', '0', '-', '=', '?', '?', 'A', 'Z', 'E', 'R', 'T', 'Y', 
-        'U', 'I', 'O', 'P', '^', '$', '?', '?', 'Q', 'S', 'D', 'F', 'G', 
+    '7', '8', '9', '0', '-', '-', '?', '?', 'A', 'Z', 'E', 'R', 'T', 'Y', 
+        'U', 'I', 'O', 'P', '(', ')', '?', '?', 'Q', 'S', 'D', 'F', 'G', 
         'H', 'J', 'K', 'L', 'M', '?', '`', '?', '\\', 'W', 'X', 'C', 'V', 
         'B', 'N', ',', ';', ':', '=', '?', '?', '?', ' '};
 

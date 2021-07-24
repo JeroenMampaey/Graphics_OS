@@ -8,6 +8,7 @@
         "string": "c",
         "random": "c",
         "networking.h": "c",
-        "network_stack.h": "c"
+        "network_stack.h": "c",
+        "kernel.h": "c"
     }
 }

@@ -3,6 +3,7 @@
 
 #include "../drivers/screen.h"
 #include "../drivers/keyboard.h"
+#include "kernel_program.h"
 
 #define BUFFER_BEGIN 0x1000000
 

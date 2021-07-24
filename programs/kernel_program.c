@@ -12,8 +12,18 @@ void user_input(char* input);
 
 void boot_to_kernel(){
     key_buffer[0] = '\0';
-    RSDP_address = 0;
     command_ready = 0;
+}
+
+void editor_to_kernel(){
+    key_buffer[0] = '\0';
+    command_ready = 0;
+}
+
+void graphics_to_kernel(){
+    key_buffer[0] = '\0';
+    command_ready = 0;
+    for(int i=0; i<num_cores; i++) if(i!=BSP_ID) sendIPI(i, 2);
 }
 
 void kernel_loop_callback(){
@@ -60,16 +70,26 @@ void user_input(char* input){
 	}
 	else if(strcmp(input, "RUN GRAPHICS")==0){
         //do some initializations when switching to the graphics program
-        kernel_to_graphics();
         current_program = 1;
-        for(int i=0; i<num_cores; i++) if(i!=BSP_ID) sendIPI(i, 2);
-        show_screen();
+        kernel_to_graphics();
         return;
 	}
     else if(strcmp(input, "WRITE")==0){
-        kernel_to_editor();
         current_program = 2;
+        kernel_to_editor();
         return;
+    }
+    else if(substr_cmp(input, "LOAD ")==0 && strlen(input)==6){
+        if(input[5]>='1' && input[5]<='3'){
+            load_editor_file(input[5]-'1');
+        }
+        else printk("\nFile number does not exist.");
+    }
+    else if(substr_cmp(input, "SAVE ")==0 && strlen(input)==6){
+        if(input[5]>='1' && input[5]<='3'){
+            save_editor_file(input[5]-'1');
+        }
+        else printk("\nFile number does not exist.");
     }
     else if(strcmp(input, "VENDOR ID")==0){
         //https://wiki.osdev.org/CPUID

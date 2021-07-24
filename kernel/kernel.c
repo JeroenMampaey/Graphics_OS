@@ -6,11 +6,15 @@
 #include "../drivers/networking.h"
 #include "../drivers/network_stack.h"
 #include "../programs/editor_program.h"
+#include "../drivers/disk_reader.h"
+#include "../cpu/timer.h"
 
 
+//private functions
 void setup_kernel();
 void showMemLayout();
 void setup_AP();
+int checkFirst();
 
 void main(){
 	setup_kernel();
@@ -100,12 +104,22 @@ void setup_kernel(){
 	//setup networking
 	init_stack();
 
+	//empty the buffer of the editor program
+	//buffer is 0x28CD0 bytes big, allowing for 2089 lines of ASCII char's
+    clear_dwords_asm(0x1000000, 0xA334);
+
+	//check whether this is the first time that the OS ever runs on the machine
+	//I determine this by checking whether a specific sector (LBA 199) is full of 0xFF's
+	//if so, do some things (make sure that the 3 editor files are empty on the disk)
+	int first = checkFirst();
+
 	//start the kernel program
 	boot_to_kernel();
 
 	//clear the screen
 	clear_screen();
-	printk("Welcome to GOS!\n\n\n\n\n");
+	if(first==1) printk("You are new here, welcome to GOS!\n\n\n\n\n");
+	else printk("Welcome to GOS!\n\n\n\n\n");
 	showMemLayout();
 	printk("> ");
 }
@@ -141,4 +155,35 @@ void showMemLayout(){
 		printk("\n");
 	}
 	printk("\n\n\n");
+}
+
+int checkFirst(){
+	printk("Checking whether this machine has used this OS before.\n");
+	short* destination = (short*)0x2000000;
+	read_disk(199, 1, destination);
+	int first = 0;
+	for(int i=0; i<256; i++){
+		if((unsigned short)(*(destination+i)) != 0xFFFF){
+			first = 1;
+			*(destination+i) = 0xFFFF;
+		}
+	}
+	if(first==1){
+		printk("This is the first time the machine uses this OS.\n");
+		printk("If this message does not go away in less than 30 seconds, then try restarting the machine.\n");
+		write_disk(526, 255, (short*)0x1000000);
+		write_disk(526+255, 71, (short*)0x101FE00);
+		write_disk(852, 255, (short*)0x1000000);
+		write_disk(852+255, 71, (short*)0x101FE00);
+		char demo[] = "T(50,50,0,150,50,0,150,150,0,1);\nT(50,50,0,50,150,0,150,150,0,1);\nT(50,50,0,50,50,-100,50,150,-100,2);\nT(50,50,0,50,150,0,50,150,-100,2);\nT(150,50,0,150,150,0,150,150,-100,3);\nT(150,50,0,150,50,-100,150,150,-100,3);\nT(50,50,-100,150,50,-100,150,150,-100,4);\nT(50,50,-100,50,150,-100,150,150,-100,4);\nT(50,50,0,150,50,0,150,50,-100,5);\nT(50,50,0,50,50,-100,150,50,-100,5);\nT(50,150,0,150,150,0,150,150,-100,6);\nT(50,150,0,50,150,-100,150,150,-100,6);";
+		char* demo_buffer = (char*)0x1000000;
+		for(int i=0; i<strlen(demo); i++, demo_buffer++){
+			*demo_buffer = demo[i];
+		}
+		write_disk(200, 255, (short*)0x1000000);
+		write_disk(200+255, 71, (short*)0x101FE00);
+		write_disk(199, 1, destination);
+	}
+	else printk("The machine has used this OS before.\n");
+	return first;
 }

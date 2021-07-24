@@ -1,6 +1,7 @@
 #include "graphics_program.h"
 #include "../drivers/screen.h"
 #include "../drivers/core_startup.h"
+#include "kernel_program.h"
 
 //private functions
 void demo();
@@ -10,19 +11,23 @@ void multiply_view_matrix(matrix_4d* mul_matrix);
 void add_cube(int x, int y, int z, int delta);
 void matrix_control();
 void reorthogonalize();
+void load_triangles();
 
 void kernel_to_graphics(){
     initialize_buffers();
-    printk("Buffers have correctly been initialized!\n");
+    printk("Buffers have correctly been cleared!\n");
     //player start at position zero with no rotation
     view_matrix.a00=1; view_matrix.a01=0; view_matrix.a02=0; view_matrix.a03=0;
     view_matrix.a10=0; view_matrix.a11=1; view_matrix.a12=0; view_matrix.a13=0;
     view_matrix.a20=0; view_matrix.a21=0; view_matrix.a22=1; view_matrix.a23=0;
     view_matrix.a30=0; view_matrix.a31=0; view_matrix.a32=0; view_matrix.a33=1;
 
-    demo();
-    printk("Demo has been loaded!\n");
+    load_triangles();
+    printk("The triangles have been loaded!\n");
     clear_screen();
+
+    for(int i=0; i<num_cores; i++) if(i!=BSP_ID) sendIPI(i, 2);
+    show_screen();
 
     control_count = 0;
 }
@@ -82,6 +87,13 @@ void graphics_keyboard_callback(unsigned char scancode){
         view_matrix.a23 += DIST_TO_SCREEN;
         show_screen();
         matrix_control();
+    }
+    else if(scancode == (unsigned char)1){    //ESC-key
+        current_program = 0;
+        graphics_to_kernel();
+        clear_screen();
+        printk("\n");
+	    printk("> ");
     }
 
 }
@@ -262,6 +274,66 @@ void add_cube(int x, int y, int z, int delta){
     triangle_buffer_count += 12;
 }
 
+void load_triangles(){
+    triangle_3d_mem* addr = (triangle_3d_mem*)triangle_buffer_addr;
+    int stage = 0;
+    int counter_buffer = 0;
+    int sign = 0;
+    triangle_3d_mem tr_buffer = {0,0,0,0,0,0,0,0,0,0};
+    char* text = (char*)0x1000000;
+    while(*text!='\0'){
+        if(*text!=' ' && *text!='\n'){
+            if(*text=='T'){
+                if(stage==0) stage=1;
+                else break;
+            }
+            else if(*text=='('){
+                if(stage==1) stage=2;
+                else break;
+            }
+            else if(*text==','){
+                if(stage>=2 && stage<11){
+                    short* buffer_pointer = (short*)(&tr_buffer);
+                    *(buffer_pointer+stage-2) = sign*counter_buffer;
+                    stage++;
+                    counter_buffer = 0;
+                    sign = 0;
+                }
+                else break;
+            }
+            else if(*text==')'){
+                if(stage==11 && counter_buffer<16 && counter_buffer>=0 && sign!=-1){
+                    stage = 12;
+                    tr_buffer.color = counter_buffer;
+                    counter_buffer = 0;
+                    sign = 0;
+                }
+                else break;
+            }
+            else if(*text==';'){
+                if(stage==12){
+                    stage=0;
+                    *addr = tr_buffer;
+                    addr++;
+                    triangle_buffer_count++;
+                }
+                else break;
+            }
+            else if(*text=='-'){
+                if(sign==0) sign = -1;
+                else break;
+            }
+            else if(*text>='0' && *text<='9'){
+                if(sign==0) sign = 1;
+                counter_buffer *= 10;
+                counter_buffer += (int)(*text-'0');
+            }
+            else break;
+        }
+        text++;
+    }
+}
+
 void AP_drawing(){
     int my_APIC_id = getAPIC_ID();
     int* BSP_count = (int*)(AP_buffer_begin+(my_APIC_id-1)*0x20000);
@@ -270,7 +342,7 @@ void AP_drawing(){
     AP_package* my_triangle_buffer = (AP_package*)(AP_buffer_begin+(my_APIC_id-1)*0x20000+0x1000);
     int current_count = 0;
     AP_package* current_triangle = my_triangle_buffer;
-    while(1){
+    while(current_program==1){
         if(*BSP_count > current_count){
             /*if(current_count==0 && my_APIC_id==1){
                 int_to_ascii((int)my_count, to_print);

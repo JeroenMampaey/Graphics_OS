@@ -37,6 +37,16 @@ void write_disk(unsigned int LBA, unsigned char num_of_sectors, short* data){
         Code to write the IDE Primary Master using ATA PIO Mode with a 28-bit LBA address
         Used alot of help from https://wiki.osdev.org/ATA_PIO_Mode
     */
+
+   /*
+		Small wait between writes appears to be necessary, I do not know how long I should wait to be honest
+		but 10 microseconds seems to work fine on virtualbox atleast.
+		Maybe I should poll for a bit somewhere instead but I don't seem to find any information about this in the OSdev wiki
+	*/  
+   use_single_int_mode();
+   sleep_micro(10);
+   frequency_mode(60);
+
 	port_byte_out(0x1F6, (unsigned char)(0xE0 + (LBA >> 24)));
 	port_byte_out(0x1F2, num_of_sectors);
 	port_byte_out(0x1F3, (unsigned char)LBA);
@@ -61,4 +71,14 @@ void write_disk(unsigned int LBA, unsigned char num_of_sectors, short* data){
 	}
 
 	port_byte_out(0x1F7, 0xE7);
+}
+
+void load_editor_file(int number){
+	read_disk(200+number*326, 255, (short*)0x1000000);
+	read_disk(200+number*326+255, 71, (short*)0x101FE00);
+}
+
+void save_editor_file(int number){
+	write_disk(200+number*326, 255, (short*)0x1000000);
+	write_disk(200+number*326+255, 71, (short*)0x101FE00);
 }

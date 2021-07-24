@@ -7,8 +7,6 @@ void shrink_buffer(char* to_change);
 
 void kernel_to_editor(){
     clear_screen();
-    //buffer is 0x28CD0 bytes big, allowing for 2089 lines of ASCII char's
-    clear_dwords_asm(0x1000000, 0xA334);
     set_write_color(0b00000111);
     put_on_screen((char*)BUFFER_BEGIN, 0);
     current_mem_addr = 0;
@@ -25,12 +23,63 @@ void editor_loop_callback(){
     );
 }
 
-//TODO: cleanup
-//since this appeared to be more complex than I thought (especially without using any brute force tricks)
-//I instead brute forced a solution by splitting the problem in different parts and just solving every part
-//this code does however need to be cleaned and simplified (alot of identical code at multiple places)
+//this code is not pretty but it is NOT lazy and appears to work
 void editor_keyboard_callback(unsigned char scancode){
-    if(scancode == (unsigned char)75){   //leftkey
+    if(scancode == (unsigned char)72){   //upkey
+        //TODO: scrolling
+        if(current_mem_addr == 0) return;
+        char* cursor_char = (char*)BUFFER_BEGIN + current_mem_addr;
+        if(*cursor_char=='\n' || *cursor_char=='\0') print_char_at(' ', current_mem_position);
+        else print_char_at(*cursor_char, current_mem_position);
+        int found = 0;
+        int offset = current_mem_position;
+        while(cursor_char >= (char*)BUFFER_BEGIN){
+            cursor_char--;
+            if(*cursor_char=='\n' && found==0){
+                found = 1;
+            }
+            else if(*cursor_char=='\n' && found==1){
+                found = 2;
+                break;
+            }
+            offset = ((offset % 80) == 0) ? offset-15*80 : offset;
+            offset--;
+        }
+        if(found == 1){
+            current_mem_addr = 0;
+            current_mem_position = 0;
+        }
+        else if(found == 2){
+            cursor_char++;
+            offset = offset - (offset % 80);
+            current_mem_position = offset;
+            current_mem_addr = (int)(cursor_char-(char*)BUFFER_BEGIN);
+        }
+        print_char_at('<', current_mem_position);
+    }
+    else if(scancode == (unsigned char)80){   //downkey
+        //TODO: scrolling
+        char* cursor_char = (char*)BUFFER_BEGIN + current_mem_addr;
+        if(*cursor_char == '\0') return;
+        if(*cursor_char=='\n' || *cursor_char=='\0') print_char_at(' ', current_mem_position);
+        else print_char_at(*cursor_char, current_mem_position);
+        int offset = current_mem_position;
+        while(*cursor_char != '\0'){
+            if(*cursor_char=='\n'){
+                cursor_char++;
+                offset = offset - (offset % 80);
+                offset += 16*80;
+                current_mem_position = offset;
+                current_mem_addr = (int)(cursor_char-(char*)BUFFER_BEGIN);
+                break;
+            }
+            offset++;
+            offset = ((offset % 80) == 0) ? offset+15*80 : offset;
+            cursor_char++;
+        }
+        print_char_at('<', current_mem_position);
+    }
+    else if(scancode == (unsigned char)75){   //leftkey
         if(current_mem_addr == 0) return;
         char* cursor_char = (char*)BUFFER_BEGIN + current_mem_addr;
         if(*cursor_char == '\n' || *cursor_char == '\0') print_char_at(' ', current_mem_position);
@@ -223,7 +272,7 @@ void editor_keyboard_callback(unsigned char scancode){
             current_mem_position -= 80;
             put_on_screen(to_change, current_mem_position);
         }
-        else if(prev_char != '\0'){
+        else{
             int offset = current_mem_position+1;
             char* to_change_original = to_change-2;
             int counter_original = 0;
@@ -280,11 +329,14 @@ void editor_keyboard_callback(unsigned char scancode){
                 }
             }
         }
-        else{
-            current_mem_position += (80 - (current_mem_position % 80));
-            current_mem_position += 15*80;
-        }
         print_char_at('<', current_mem_position);
+    }
+    else if(scancode == (unsigned char)1){    //ESC-key
+        current_program = 0;
+        editor_to_kernel();
+        clear_screen();
+        printk("\n");
+	    printk("> ");
     }
     else{
         char letter = sc_ascii[(int)scancode];
