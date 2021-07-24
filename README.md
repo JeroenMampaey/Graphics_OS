@@ -1,7 +1,7 @@
-# Graphics_OS
+# About
 blabla  
 blabla2  
 blabla3  
-# Blabla4
+# How to use it
 blabla5  
 blabla6  
