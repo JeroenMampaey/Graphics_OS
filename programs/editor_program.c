@@ -26,7 +26,6 @@ void editor_loop_callback(){
 //this code is not pretty but it is NOT lazy and appears to work
 void editor_keyboard_callback(unsigned char scancode){
     if(scancode == (unsigned char)72){   //upkey
-        //TODO: scrolling
         if(current_mem_addr == 0) return;
         char* cursor_char = (char*)BUFFER_BEGIN + current_mem_addr;
         if(*cursor_char=='\n' || *cursor_char=='\0') print_char_at(' ', current_mem_position);
@@ -39,26 +38,47 @@ void editor_keyboard_callback(unsigned char scancode){
                 found = 1;
             }
             else if(*cursor_char=='\n' && found==1){
-                found = 2;
                 break;
             }
             offset = ((offset % 80) == 0) ? offset-15*80 : offset;
             offset--;
         }
         if(found == 1){
-            current_mem_addr = 0;
-            current_mem_position = 0;
-        }
-        else if(found == 2){
             cursor_char++;
-            offset = offset - (offset % 80);
+            if(offset >= 0) offset = offset - (offset % 80);
+            else{
+                offset = ((offset % 80)==0) ? offset : offset - ((offset % 80)+80);
+                int number_of_lines = -1*(offset/(16*80));
+                number_of_lines = (number_of_lines <= 30) ? number_of_lines : 30;
+                set_read_color(0);
+                if(number_of_lines!=30) move_dwords_reverse_asm((int)(VIDEO_MEMORY+0x95FC-number_of_lines*16*80), (int)(VIDEO_MEMORY+0x95FC), (464*80-(number_of_lines-1)*16*80)/4);
+                clear_dwords_asm((int)VIDEO_MEMORY, (int)(16*80*number_of_lines/4));
+                char* iterator = cursor_char;
+                offset = 0;
+                while(number_of_lines > 0){
+                    if(*iterator!='\n'){
+                        print_char_at(*iterator, offset);
+                        offset++;
+                        if((offset % 80) == 0){
+                            offset += 15*80;
+                            number_of_lines--;
+                        }
+                    }
+                    else{
+                        offset = offset - (offset % 80);
+                        offset += 16*80;
+                        number_of_lines--;
+                    }
+                    iterator++;
+                }
+                offset = 0;
+            }
             current_mem_position = offset;
             current_mem_addr = (int)(cursor_char-(char*)BUFFER_BEGIN);
         }
         print_char_at('<', current_mem_position);
     }
     else if(scancode == (unsigned char)80){   //downkey
-        //TODO: scrolling
         char* cursor_char = (char*)BUFFER_BEGIN + current_mem_addr;
         if(*cursor_char == '\0') return;
         if(*cursor_char=='\n' || *cursor_char=='\0') print_char_at(' ', current_mem_position);
@@ -69,6 +89,30 @@ void editor_keyboard_callback(unsigned char scancode){
                 cursor_char++;
                 offset = offset - (offset % 80);
                 offset += 16*80;
+                if(offset >= 480*80){
+                    int number_of_lines = (offset-464*80)/(16*80);
+                    number_of_lines = (number_of_lines <= 30) ? number_of_lines : 30;
+                    set_read_color(0);
+                    if(number_of_lines!=30) move_dwords_asm((int)(VIDEO_MEMORY+number_of_lines*16*80), (int)VIDEO_MEMORY, (464*80-(number_of_lines-1)*16*80)/4);
+                    clear_dwords_asm((int)(VIDEO_MEMORY+464*80-(number_of_lines-1)*16*80), (int)(16*80*number_of_lines/4));
+                    char* iterator = (char*)BUFFER_BEGIN+current_mem_addr;
+                    for(int i=0; i<(79-(current_mem_position % 80)) && *iterator!='\n'; i++) iterator++;
+                    iterator++;
+                    offset = 464*80-(number_of_lines-1)*16*80;
+                    while(*iterator!='\0' && offset<480*80){
+                        if(*iterator=='\n'){
+                            offset = offset - (offset % 80);
+                            offset += 16*80;
+                        }
+                        else{
+                            print_char_at(*iterator, offset);
+                            offset++;
+                            offset = ((offset % 80) == 0) ? offset+15*80 : offset;
+                        }
+                        iterator++;
+                    }
+                    offset = 464*80;
+                }
                 current_mem_position = offset;
                 current_mem_addr = (int)(cursor_char-(char*)BUFFER_BEGIN);
                 break;

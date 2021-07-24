@@ -69,27 +69,35 @@ void user_input(char* input){
 		clear_screen();
 	}
 	else if(strcmp(input, "RUN GRAPHICS")==0){
-        //do some initializations when switching to the graphics program
         current_program = 1;
-        kernel_to_graphics();
+        kernel_to_graphics(0);
         return;
 	}
+    else if(strcmp(input, "RUN DEMO GRAPHICS")==0){
+        //A hardcoded demo which I initially used to test everything (this demo is not in any of the files)
+        current_program = 1;
+        kernel_to_graphics(1);
+        return;
+    }
     else if(strcmp(input, "WRITE")==0){
         current_program = 2;
         kernel_to_editor();
         return;
     }
+    else if(strcmp(input, "CLEAR EDITOR")==0){
+        clear_dwords_asm(0x1000000, 0xA334);
+    }
     else if(substr_cmp(input, "LOAD ")==0 && strlen(input)==6){
         if(input[5]>='1' && input[5]<='3'){
             load_editor_file(input[5]-'1');
         }
-        else printk("\nFile number does not exist.");
+        else printk("\nFile number does not exist.\n");
     }
     else if(substr_cmp(input, "SAVE ")==0 && strlen(input)==6){
         if(input[5]>='1' && input[5]<='3'){
             save_editor_file(input[5]-'1');
         }
-        else printk("\nFile number does not exist.");
+        else printk("\nFile number does not exist.\n");
     }
     else if(strcmp(input, "VENDOR ID")==0){
         //https://wiki.osdev.org/CPUID

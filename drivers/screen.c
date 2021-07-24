@@ -324,8 +324,6 @@ void drawTriangle2D(triangle_2d triangle, char* draw_address){
     } 
 }
 
-
-//TODO: make use of the already existing print_string_at function
 void printk(char string[]){
 	set_write_color(0b00000111);
 	int i = 0;

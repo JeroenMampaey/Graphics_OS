@@ -12,7 +12,7 @@ void graphics_keyboard_callback(unsigned char scancode);
 
 void graphics_timer_callback();
 
-void kernel_to_graphics();
+void kernel_to_graphics(int demo_mode);
 
 void AP_drawing();
 

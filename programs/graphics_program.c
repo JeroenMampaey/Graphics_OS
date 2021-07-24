@@ -13,7 +13,7 @@ void matrix_control();
 void reorthogonalize();
 void load_triangles();
 
-void kernel_to_graphics(){
+void kernel_to_graphics(int demo_mode){
     initialize_buffers();
     printk("Buffers have correctly been cleared!\n");
     //player start at position zero with no rotation
@@ -22,8 +22,14 @@ void kernel_to_graphics(){
     view_matrix.a20=0; view_matrix.a21=0; view_matrix.a22=1; view_matrix.a23=0;
     view_matrix.a30=0; view_matrix.a31=0; view_matrix.a32=0; view_matrix.a33=1;
 
-    load_triangles();
-    printk("The triangles have been loaded!\n");
+    if(demo_mode==0){
+        load_triangles();
+        printk("The triangles have been loaded!\n");
+    }
+    else{
+        demo();
+        printk("The demo has been loaded!\n");
+    }
     clear_screen();
 
     for(int i=0; i<num_cores; i++) if(i!=BSP_ID) sendIPI(i, 2);
