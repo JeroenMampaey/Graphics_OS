@@ -35,9 +35,10 @@ In the terminal, you can use some basic commands:
 - "TEST MULTICORE": test every core that is used by the OS
 - "GET IP": uses DHCP to get a local IP-address for the machine
 - "NETWORK INFO": shows the MAC- and IP-address of the machine, also shows the IP-address of the router
-
+- "RUN DEMO GRAPHICS": alows the user to walk around in a demo 3D space
 
 As far as networking is concerned, at the moment, your machine should answer to ARP requests and ICMP echo requests (ping requests) with correct replies.  
+
 
 
 
