@@ -23,8 +23,10 @@ Make sure you save all the changes in the settings and also remember the name of
 ![image](https://user-images.githubusercontent.com/44338633/126884304-6005496c-276b-4443-9212-618b9f5b1c40.png)  
 Use a file explorer to find the disk image called "os_image.bin" and open it with a binary file editor, for windows I always use HxD (https://mh-nexus.de/en/hxd/).  
 ![image](https://user-images.githubusercontent.com/44338633/126884393-70d34a5c-f9c2-474e-8b83-9ae23c866b12.png)  
-Now while keeping the "os_image.bin" file open, go back to Virtualbox and select the machine that you just made, then at the top click "Machine" and next click "Show in Explorer". Now open the vdi file that I told you to remember the name of and open it with a binary editor aswell.  
+Now while keeping the "os_image.bin" file open, go back to Virtualbox and select the machine that you just made, then at the top click "Machine" and next click "Show in Explorer". Now open the vdi file from the IDE Primary Master with a binary editor.  
 ![image](https://user-images.githubusercontent.com/44338633/126884505-bc810d74-c957-4818-a8bc-239f8ddce219.png)  
+The bytes at 0x158, 0x159, 0x15A and 0x15B indicate where the disk actually begins, it represents an hexadecimal address, in my case it says "00002000" and since it is written in little endian this refers to address 0x00200000. Copy all the binary data from "os_image.bin" and paste it in the vdi file starting at the address you just found (there are probably some more efficiënt methods to craft a vdi file but this is the way that I have always done it and it doesn't take to long). When you have done this (and saved it), you can start up the machine in virtualbox and a screen should show looking like this:  
+![image](https://user-images.githubusercontent.com/44338633/126898339-f9becd71-f78e-4395-aec8-8b8c512c6637.png)  
 
 
 
