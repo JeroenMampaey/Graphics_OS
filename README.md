@@ -27,7 +27,8 @@ Now while keeping the "os_image.bin" file open, go back to Virtualbox and select
 ![image](https://user-images.githubusercontent.com/44338633/126884505-bc810d74-c957-4818-a8bc-239f8ddce219.png)  
 The bytes at 0x158, 0x159, 0x15A and 0x15B indicate where the disk actually begins, it represents an hexadecimal address, in my case it says "00002000" and since it is written in little endian this refers to address 0x00200000. Copy all the binary data from "os_image.bin" and paste it in the vdi file starting at the address you just found (there are probably some more efficiënt methods to craft a vdi file but this is the way that I have always done it and it doesn't take to long). When you have done this (and saved it), you can start up the machine in virtualbox and a screen should show looking like this:  
 ![image](https://user-images.githubusercontent.com/44338633/126898339-f9becd71-f78e-4395-aec8-8b8c512c6637.png)  
-
+In that case, you have done everything correctly.  
+# What can you do with it?
 
 
 
