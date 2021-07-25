@@ -29,8 +29,13 @@ The bytes at 0x158, 0x159, 0x15A and 0x15B indicate where the disk actually begi
 ![image](https://user-images.githubusercontent.com/44338633/126898339-f9becd71-f78e-4395-aec8-8b8c512c6637.png)  
 In that case, you have done everything correctly.  
 # What can you do with it?
-In the terminal, you can use some basic commands:  
-- hallo1
-- hallo2
+In the terminal, you can use some basic commands:
+- "CLEAR": clears the terminal
+- "VENDOR ID": shows the vendor id of your processor
+- "TEST MULTICORE": test every core that is used by the OS
+- "GET IP": uses DHCP to get a local IP-address for the machine
+- "NETWORK INFO": shows the MAC- and IP-address of the machine, also shows the IP-address of the router
+As far as networking is concerned, at the moment, your machine should answer to ARP requests and ICMP echo requests (ping requests) with correct replies.  
+
 
 
