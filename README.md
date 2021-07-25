@@ -49,7 +49,9 @@ You can save your editor file in one out of 3 files with the command "SAVE n" (n
 - "SAVE n": save the editor in file n
 - "LOAD n": load the editor in file n
 
-Typos in the editor will not crash the OS when using the "RUN GRAPHICS" command but it will only render all triangles before the typo.
+Typos in the editor will not crash the OS when using the "RUN GRAPHICS" command but it will only render all triangles before the typo.  
+Moving around in the environment is possible by using "A" and "Q" keys to go respectively forwards and backwards and use the arrow keys to look around.  
+If you may have noticed, the keyboard layout when using the editor and terminal is very strange, I assume that you are using a Belgian azerty-keyboard in which your will find your brackets on the "^" and the "$" keys and numbers don't need you to press the shift key (the shift key is useless in this OS). You can custome this if you like by altering the source code in drivers->keyboard.c by altering the "sc_ascii" array.
 
 
 
