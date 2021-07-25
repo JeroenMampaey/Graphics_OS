@@ -2,6 +2,9 @@
 This is an OS made for fun. I mainly used information from the OSdev wiki to make this aswell as from https://github.com/cfenollosa/os-tutorial. I use 640x480 VGA mode with 4-bit colors, I provide multicore support for 3D rendering, provide a disk driver for an IDE controller using ATA PIO mode and I make use of an Intel 82540EM network card. Though the source code quickly became very messy, I'm am happy with the result.
 # How to use it
 I have always used this on Oracle Virtualbox so that's how I will show it here.  
-I do assume that your computer has an Intel Core chip and I am not sure whether some features that I use are supported on other chips, either way, startup of the OS will halt if you miss any features so you might as well try ;).
+I do assume that your computer has an Intel Core chip and I am not sure whether some features that I use are supported on other chips, either way, startup of the OS will halt if you miss any features so you might as well try ;).  
+Add a new machine to your virtualbox with whatever name you like.  
+![image](https://user-images.githubusercontent.com/44338633/126883649-5fa771e3-3a6b-4ef7-ab5b-0d200032cf7e.png)  
+Next you want to
 
 
