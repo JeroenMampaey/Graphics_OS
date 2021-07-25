@@ -31,8 +31,8 @@ In that case, you have done everything correctly.
 # What can you do with it?
 In the terminal, you can use some basic commands:  
 - hallo1  
-- hallo2  
-
+- hallo2
+- hallo3 ezfeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 
 
 
