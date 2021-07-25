@@ -1,6 +1,6 @@
 # About
 This is an OS made for fun. I mainly used information from the OSdev wiki to make this aswell as from https://github.com/cfenollosa/os-tutorial. I use 640x480 VGA mode with 4-bit colors, I provide multicore support for 3D rendering, provide a disk driver for an IDE controller using ATA PIO mode and I make use of an Intel 82540EM network card. Though the source code is in my opinion very messy and while I am certain that there are still some bugs left, I am happy with the result.
-# How to use it
+# Setting it up
 I have always used this on Oracle Virtualbox so that's how I will show it here.  
 I do assume that your computer has an Intel Core chip and I am not sure whether some features that I use are supported on other chips, either way, startup of the OS will halt if you miss any features so you might as well try ;). You will also need atleast two cores (preferably more) on your processor.  
   
@@ -12,7 +12,7 @@ Next go to storage and delete the current controller.
 ![image](https://user-images.githubusercontent.com/44338633/126883972-581d20d6-497b-4469-821d-ccd83a4cddc2.png)  
 Add a new controller with "IDE" somewhere in the name (PIIX4 for example).  
 ![image](https://user-images.githubusercontent.com/44338633/126884054-0b17d54d-ba70-4f45-927a-ef80c2346d64.png)  
-Then add a hard drive to this controller, create a new hard drive, VDI, statically allocated, 4 MB or bigger is fine and choose the one you just made to add to the controller to end up with somthing like this:  
+Then add a hard drive to this controller, create a new hard drive, VDI, statically allocated, 4 MB or bigger is fine and choose the one you just made to add to the controller to end up with something like this:  
 ![image](https://user-images.githubusercontent.com/44338633/126884120-13901139-073a-4030-bb1e-380e0ddd7005.png)  
 Make sure that the drive you just made is an IDE Primary Master.  
 Next go to network and instead of NAT, choose a network bridge adapter.  
@@ -28,7 +28,7 @@ Now while keeping the "os_image.bin" file open, go back to Virtualbox and select
 The bytes at 0x158, 0x159, 0x15A and 0x15B indicate where the disk actually begins, it represents an hexadecimal address, in my case it says "00002000" and since it is written in little endian this refers to address 0x00200000. Copy all the binary data from "os_image.bin" and paste it in the vdi file starting at the address you just found (there are probably some more efficiënt methods to craft a vdi file but this is the way that I have always done it and it doesn't take to long). When you have done this (and saved it), you can start up the machine in virtualbox and a screen should show looking like this:  
 ![image](https://user-images.githubusercontent.com/44338633/126898339-f9becd71-f78e-4395-aec8-8b8c512c6637.png)  
 In that case, you have done everything correctly.  
-# What can you do with it?
+# Usage
 In the terminal, you can use some basic commands:
 - "CLEAR": clears the terminal
 - "VENDOR ID": shows the vendor id of your processor
