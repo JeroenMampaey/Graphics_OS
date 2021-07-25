@@ -29,8 +29,8 @@ The bytes at 0x158, 0x159, 0x15A and 0x15B indicate where the disk actually begi
 ![image](https://user-images.githubusercontent.com/44338633/126898339-f9becd71-f78e-4395-aec8-8b8c512c6637.png)  
 In that case, you have done everything correctly.  
 # What can you do with it?
-In the terminal, you can use some basic commands:
-Markup: -hallo1
+In the terminal, you can use some basic commands:  
+Markup : -hallo1
         -hallo2
 
 
