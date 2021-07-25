@@ -11,7 +11,7 @@ Now to the important part, select the machine you just made and click "Settings"
 Next go to storage and delete the current controller.  
 ![image](https://user-images.githubusercontent.com/44338633/126883972-581d20d6-497b-4469-821d-ccd83a4cddc2.png)  
 Add a new controller with "IDE" somewhere in the name (PIIX4 for example).  
-![image](https://user-images.githubusercontent.com/44338633/126884054-0b17d54d-ba70-4f45-927a-ef80c2346d64.png)
+![image](https://user-images.githubusercontent.com/44338633/126884054-0b17d54d-ba70-4f45-927a-ef80c2346d64.png)  
 Then add a hard drive to this controller, create a new hard drive, VDI, statically allocated, 4 MB or bigger is fine and choose the one you just made to add to the controller to end up with somthing like this:  
 ![image](https://user-images.githubusercontent.com/44338633/126884120-13901139-073a-4030-bb1e-380e0ddd7005.png)  
 Make sure that the drive you just made is an IDE Primary Master.  
