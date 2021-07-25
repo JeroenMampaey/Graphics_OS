@@ -48,7 +48,7 @@ You can save your editor file in one out of 3 files with the command "SAVE n" (n
 - "CLEAR EDITOR": empty the editor
 - "SAVE n": save the editor in file n
 - "LOAD n": load the editor in file n
-
+Typos in the editor will not crash the OS when using the "RUN GRAPHICS" command but it will only render all triangles before the typo.
 
 
 
