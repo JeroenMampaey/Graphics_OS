@@ -30,8 +30,8 @@ The bytes at 0x158, 0x159, 0x15A and 0x15B indicate where the disk actually begi
 In that case, you have done everything correctly.  
 # What can you do with it?
 In the terminal, you can use some basic commands:  
--hallo1  
--hallo2  
+- hallo1  
+- hallo2  
 
 
 
