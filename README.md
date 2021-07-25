@@ -3,8 +3,8 @@ This is an OS made for fun. I mainly used information from the OSdev wiki to mak
 # How to use it
 I have always used this on Oracle Virtualbox so that's how I will show it here.  
 I do assume that your computer has an Intel Core chip and I am not sure whether some features that I use are supported on other chips, either way, startup of the OS will halt if you miss any features so you might as well try ;).  
-Add a new machine to your virtualbox with whatever name you like.  
-![image](https://user-images.githubusercontent.com/44338633/126883649-5fa771e3-3a6b-4ef7-ab5b-0d200032cf7e.png)  
-Next you want to
+  
+Add a new machine to your virtualbox with whatever name you like and give it your recommended amount of RAM.  
+It doesn't matter how big the harddisk is since we will remove it anyway thus take for example "new disk"->"VDI"->"statically allocated"->"4 MB".  
 
 
