@@ -7,3 +7,7 @@ I do assume that your computer has an Intel Core chip and I am not sure whether 
 Add a new machine to your virtualbox with whatever name you like and give it your recommended amount of RAM.  
 It doesn't matter how big the harddisk is since we will remove it anyway thus take for example "new disk"->"VDI"->"statically allocated"->"4 MB".  
 Now to the important part, select the machine you just made and click "Settings". Go to "System" and then "Processor" and tell virtualbox to use more than one core, it's best to use the maximum amount of distinct !physical! processors on your chip.
+![image](https://user-images.githubusercontent.com/44338633/126883940-00620e1d-852c-4068-8dcc-0dc0849686f5.png)
+Next go to storage and delete the current controller.
+![image](https://user-images.githubusercontent.com/44338633/126883962-086da498-4813-4181-a022-a6cd6f2f2edc.png)
+
