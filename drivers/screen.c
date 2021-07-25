@@ -465,10 +465,10 @@ void initialize_buffers(){
 	buffer_addr[3] = 0x3C200;
 
 	/* Reserve 1 buffers starting at address 0x45800
-	   of size 0x3000 bytes, this buffer will thus take space from address 0x45800 until 0x48800
-	   this buffer allows for 646 triangles (triangle_3d_mem)
+	   of size 0x9B0B bytes, this buffer will thus take space from address 0x45800 until 0x4F30B
+	   this buffer allows for 2089 triangles (triangle_3d_mem)
 	*/
-	clear_dwords_asm(0x45800, (int)(0x3000/4));
+	clear_dwords_asm(0x45800, (int)(0x9B0B/4));
 	triangle_buffer_addr = (int)0x45800;
 	//the buffer has at the moment zero triangles;
 	triangle_buffer_count = 0;
