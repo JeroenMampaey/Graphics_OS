@@ -39,7 +39,10 @@ In the terminal, you can use some basic commands:
 
 As far as networking is concerned, at the moment, your machine should answer to ARP requests and ICMP echo requests (ping requests) with correct replies. 
   
-The OS is centered around allowing users to make their own 3D environment that you can walk around in similar to the "RUN DEMO GRAPHICS" command. To achieve this, the OS has an editor which you can start by using the "WRITE" command. In this editor, you can tell the OS to place a triangle somewhere by typing "T(x0, y0, z0, x1, y1, z1, x2, y2, z2);" where (xn, yn, zn) represent the n'th point of the triangle. The editor is not supposed to contain more than 2080 lines and the OS is made so that it is possible to render up to 2080 traingles. Leaving the editor is possible by pressing the ESC-key and you can view your 3D environment by typing the "RUN GRAPHICS" command (and you can leave this one also by pressing the ESC-key). 
+The OS is centered around allowing users to make their own 3D environment that you can walk around in similar to the "RUN DEMO GRAPHICS" command. To achieve this, the OS has an editor which you can start by using the "WRITE" command. In this editor, you can tell the OS to place a triangle somewhere by typing "T(x0, y0, z0, x1, y1, z1, x2, y2, z2);" where (xn, yn, zn) represent the n'th point of the triangle. The editor is not supposed to contain more than 2080 lines and the OS is made so that it is possible to render up to 2080 traingles. Leaving the editor is possible by pressing the ESC-key and you can view your 3D environment by typing the "RUN GRAPHICS" command (and you can leave this one also by pressing the ESC-key).  
+![image](https://user-images.githubusercontent.com/44338633/126910896-416230d3-8c4c-4d64-a4b7-c8a63d02b399.png)  
+![image](https://user-images.githubusercontent.com/44338633/126910916-d9a5f487-2745-4221-8853-33e1b26bc1af.png)  
+
 
 
 
