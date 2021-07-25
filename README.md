@@ -19,6 +19,9 @@ Next go to network and instead of NAT, choose a network bridge adapter.
 ![image](https://user-images.githubusercontent.com/44338633/126884161-3857c027-053b-44cd-81ed-353d693faf13.png)  
 Go to the Advanced Settings and make sure that you are using the 82540EM.  
 ![image](https://user-images.githubusercontent.com/44338633/126884187-9e128c97-a799-4150-b951-0eada3b1e83c.png)  
+Make sure you save all the changes in the settings and also remember the name of the drive for the IDE controller, in my case it was "Test_1.vdi" because we now will have to put our disk image into this file. First we will need to compile the entire OS, to do this you will need a linux terminal to execute the Makefile that is included here. I have only ever tested the Makefile on the Ubuntu 18.04 LTS for windows which you can get via the Microsoft Store these days it appears. Executing the make command should give somthing like:  
+![image](https://user-images.githubusercontent.com/44338633/126884304-6005496c-276b-4443-9212-618b9f5b1c40.png)  
+vds
 
 
 
