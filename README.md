@@ -23,7 +23,7 @@ Make sure you save all the changes in the settings and also remember the name of
 ![image](https://user-images.githubusercontent.com/44338633/126884304-6005496c-276b-4443-9212-618b9f5b1c40.png)  
 Use a file explorer to find the disk image called "os_image.bin" and open it with a binary file editor, for windows I always use HxD (https://mh-nexus.de/en/hxd/).  
 ![image](https://user-images.githubusercontent.com/44338633/126884393-70d34a5c-f9c2-474e-8b83-9ae23c866b12.png)  
-Now while keeping the "os_image.bin" file open, go back to Virtualbox and select the machine that you just made, then at the top click "Machine" and next click "Show in Explorer". Now open the vdi file that I told you to remember the name from and open it with a binary editor aswell.  
+Now while keeping the "os_image.bin" file open, go back to Virtualbox and select the machine that you just made, then at the top click "Machine" and next click "Show in Explorer". Now open the vdi file that I told you to remember the name of and open it with a binary editor aswell.  
 ![image](https://user-images.githubusercontent.com/44338633/126884505-bc810d74-c957-4818-a8bc-239f8ddce219.png)  
 
 
