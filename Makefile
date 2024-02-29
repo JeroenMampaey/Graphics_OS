@@ -11,7 +11,7 @@ os_image.bin: boot/boot_sect.bin boot/AP_boot.bin kernel.bin
 	cat $^ > os_image.bin
 
 kernel.bin: kernel/kernel_entry.o ${OBJ}
-	ld -m elf_i386 -o $@ -Ttext 0x1200 --oformat binary $^
+	ld -m elf_i386 -o $@ -T link.ld --oformat binary $^
 
 %.o : %.c ${HEADERS}
 	gcc -fno-pie -ffreestanding -m32 -c $< -o $@
